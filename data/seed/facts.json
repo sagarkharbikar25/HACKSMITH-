@@ -1,0 +1,111 @@
+[
+  {
+    "id": "AF-014",
+    "topic": "availability",
+    "subject": "Lumora Smart Lamp",
+    "aliases": ["Lumora", "Lumora Lamp", "Smart Lamp"],
+    "statement": "The Lumora Smart Lamp is currently launched and officially sold in India and the United Kingdom only.",
+    "structured_value": {
+      "regions": ["IN", "GB"],
+      "region_names": ["India", "United Kingdom", "UK"]
+    },
+    "valid_from": "2026-01-01",
+    "last_reviewed": "2026-09-01",
+    "status": "current",
+    "tags": ["availability", "markets", "shipping"],
+    "kind": "fact"
+  },
+  {
+    "id": "AF-015",
+    "topic": "pricing",
+    "subject": "Lumora Smart Lamp",
+    "aliases": ["Lumora", "Lumora Lamp"],
+    "statement": "The standard official retail price of Lumora Smart Lamp is ₹4,999 in India and £49 in the UK.",
+    "structured_value": {
+      "price_inr": 4999,
+      "price_gbp": 49
+    },
+    "valid_from": "2026-01-01",
+    "last_reviewed": "2026-09-01",
+    "status": "current",
+    "tags": ["pricing", "retail"],
+    "kind": "fact"
+  },
+  {
+    "id": "AF-016",
+    "topic": "battery",
+    "subject": "Lumora Smart Lamp",
+    "aliases": ["Lumora", "Lumora Lamp"],
+    "statement": "Lumora Smart Lamp battery delivers up to 12 hours of wireless illumination on a single full charge.",
+    "structured_value": {
+      "battery_hours": 12
+    },
+    "valid_from": "2026-01-01",
+    "last_reviewed": "2026-09-01",
+    "status": "current",
+    "tags": ["battery", "hardware", "specs"],
+    "kind": "fact"
+  },
+  {
+    "id": "AF-017",
+    "topic": "warranty",
+    "subject": "Lumora Smart Lamp",
+    "aliases": ["Lumora"],
+    "statement": "Lumora Smart Lamp includes a standard 1-year limited hardware manufacturer warranty.",
+    "structured_value": {
+      "warranty_years": 1
+    },
+    "valid_from": "2026-01-01",
+    "last_reviewed": "2026-09-01",
+    "status": "current",
+    "tags": ["warranty", "support"],
+    "kind": "fact"
+  },
+  {
+    "id": "AF-018",
+    "topic": "compatibility",
+    "subject": "Lumora Smart Lamp",
+    "aliases": ["Lumora"],
+    "statement": "Lumora works seamlessly with Amazon Alexa and Google Home ecosystems. Apple HomeKit is not currently supported.",
+    "structured_value": {
+      "supported": ["Amazon Alexa", "Google Home"],
+      "unsupported": ["Apple HomeKit"]
+    },
+    "valid_from": "2026-01-01",
+    "last_reviewed": "2026-09-01",
+    "status": "current",
+    "tags": ["smart_home", "ecosystem"],
+    "kind": "fact"
+  },
+  {
+    "id": "AF-019",
+    "topic": "pricing_launch",
+    "subject": "Lumora Smart Lamp",
+    "aliases": ["Lumora"],
+    "statement": "Early bird launch price was ₹3,999 during January 2026 pre-order window.",
+    "structured_value": {
+      "price_inr": 3999
+    },
+    "valid_from": "2026-01-01",
+    "last_reviewed": "2026-02-01",
+    "status": "outdated",
+    "tags": ["pricing", "legacy"],
+    "kind": "fact"
+  },
+  {
+    "id": "SUB-01",
+    "topic": "design_award",
+    "subject": "Lumora Smart Lamp",
+    "aliases": ["Lumora", "award-winning", "award-winning design", "design award"],
+    "statement": "Lumora Smart Lamp received the International Design Excellence Award 2025. Certificate on file in Brand Central.",
+    "structured_value": {
+      "award": "International Design Excellence Award 2025",
+      "certified": true
+    },
+    "valid_from": "2025-11-01",
+    "last_reviewed": "2026-09-01",
+    "status": "current",
+    "tags": ["award-winning design", "design award", "award-winning"],
+    "kind": "substantiation"
+  }
+]

@@ -1,0 +1,33 @@
+name: BrandGuard AI Backend CI
+
+on:
+  push:
+    branches: [ main, develop, s-prototype, 'sagar/**', 'ayush/**' ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r backend/requirements.txt
+
+      - name: Run pytest
+        env:
+          PYTHONPATH: ./backend
+          DATABASE_URL: sqlite:///./test.db
+          JWT_SECRET: test-secret
+          DEMO_MODE: true
+        run: |
+          pytest backend/tests/ -v

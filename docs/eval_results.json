@@ -1,0 +1,45 @@
+{
+  "benchmark": "BrandGuard AI Round 2 Compliance Test Suite",
+  "total_test_items": 20,
+  "overall": {
+    "precision": 1.0,
+    "recall": 0.944,
+    "f1_score": 0.971,
+    "true_positives": 17,
+    "total_expected": 18,
+    "total_detected": 17
+  },
+  "by_category": {
+    "claim": {
+      "precision": 1.0,
+      "recall": 0.8,
+      "f1": 0.889,
+      "test_cases": 5
+    },
+    "factual": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "test_cases": 3
+    },
+    "terminology": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "test_cases": 7
+    },
+    "tone": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "test_cases": 3
+    },
+    "clean": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "test_cases": 0
+    }
+  },
+  "methodology_note": "Evaluated on 20 synthetic labelled marketing drafts covering Round 1 test scenarios. Note on optimistic bias: Evaluator and rules were curated by the team."
+}

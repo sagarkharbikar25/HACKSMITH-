@@ -1,0 +1,135 @@
+[
+  {
+    "id": "TERM-01",
+    "type": "term",
+    "pattern": {
+      "avoid": ["smart bulb"],
+      "prefer": "smart lamp"
+    },
+    "severity": "medium",
+    "message": "Brand terminology: Lumora is a 'smart lamp', not merely a 'smart bulb'.",
+    "suggestion": "smart lamp",
+    "tags": ["terminology", "product_name"],
+    "status": "current",
+    "last_reviewed": "2026-09-15"
+  },
+  {
+    "id": "TERM-02",
+    "type": "term",
+    "pattern": {
+      "avoid": ["cheap"],
+      "prefer": "affordable"
+    },
+    "severity": "low",
+    "message": "Brand value: Avoid describing Lumora as 'cheap'; use 'accessible' or 'affordable'.",
+    "suggestion": "affordable",
+    "tags": ["brand_voice", "pricing"],
+    "status": "current",
+    "last_reviewed": "2026-09-15"
+  },
+  {
+    "id": "TERM-03",
+    "type": "phrase",
+    "pattern": {
+      "regex": "\\b(game-changer|revolutionary|ultimate)\\b"
+    },
+    "severity": "medium",
+    "message": "Banned buzzword: avoid overused hyperbole in marketing copy.",
+    "suggestion": "innovative",
+    "tags": ["style", "banned_words"],
+    "status": "current",
+    "last_reviewed": "2026-09-15"
+  },
+  {
+    "id": "TERM-04",
+    "type": "term",
+    "pattern": {
+      "avoid": ["e-mail"],
+      "prefer": "email"
+    },
+    "severity": "low",
+    "message": "Editorial style: Spell 'email' without a hyphen.",
+    "suggestion": "email",
+    "tags": ["style", "grammar"],
+    "status": "current",
+    "last_reviewed": "2026-09-15"
+  },
+  {
+    "id": "CLAIM-01",
+    "type": "claim",
+    "pattern": {
+      "regex": "\\b(best|number one|#1|world's best|unbeatable)\\b"
+    },
+    "severity": "high",
+    "message": "Superlative claims must be backed by an active, approved substantiation document.",
+    "suggestion": "leading",
+    "tags": ["claim", "legal", "superlative"],
+    "status": "current",
+    "last_reviewed": "2026-09-15"
+  },
+  {
+    "id": "CLAIM-02",
+    "type": "claim",
+    "pattern": {
+      "regex": "\\b(100%|guaranteed|always|never fails|risk-free)\\b"
+    },
+    "severity": "medium",
+    "message": "Absolute performance claims require clear qualification.",
+    "suggestion": "designed to",
+    "tags": ["claim", "legal", "absolute"],
+    "status": "current",
+    "last_reviewed": "2026-09-15"
+  },
+  {
+    "id": "CLAIM-03",
+    "type": "claim",
+    "pattern": {
+      "regex": "\\b(better than|faster than|outperforms)\\b"
+    },
+    "severity": "high",
+    "message": "Comparative claims require head-to-head substantiation test results on file.",
+    "suggestion": "exceptional",
+    "tags": ["claim", "legal", "comparative"],
+    "status": "current",
+    "last_reviewed": "2026-09-15"
+  },
+  {
+    "id": "TONE-01",
+    "type": "tone",
+    "pattern": {
+      "regex": "!{2,}"
+    },
+    "severity": "low",
+    "message": "Tone: Multiple exclamation marks detract from Lumora's premium design voice.",
+    "suggestion": "!",
+    "tags": ["tone", "punctuation"],
+    "status": "current",
+    "last_reviewed": "2026-09-15"
+  },
+  {
+    "id": "TONE-02",
+    "type": "tone",
+    "pattern": {
+      "regex": "\\b[A-Z]{4,}\\b"
+    },
+    "severity": "low",
+    "message": "Tone: Avoid ALL CAPS shouting in marketing body copy.",
+    "suggestion": null,
+    "tags": ["tone", "typography"],
+    "status": "current",
+    "last_reviewed": "2026-09-15"
+  },
+  {
+    "id": "TONE-03",
+    "type": "tone",
+    "pattern": {
+      "regex": "\\b(act now|hurry|limited time only|last chance)\\b"
+    },
+    "severity": "medium",
+    "message": "Tone: Avoid artificial urgency phrases.",
+    "suggestion": "available now",
+    "tags": ["tone", "urgency"],
+    "status": "current",
+    "last_reviewed": "2026-09-15"
+  }
+]

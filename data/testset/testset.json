@@ -1,0 +1,122 @@
+[
+  {
+    "id": "T-01",
+    "text": "Experience the world's best smart lamp with unbeatable performance.",
+    "expected_evidence_ids": ["CLAIM-01"],
+    "expected_category": "claim"
+  },
+  {
+    "id": "T-02",
+    "text": "Now available across the US and shipping to every state.",
+    "expected_evidence_ids": ["AF-014"],
+    "expected_category": "factual"
+  },
+  {
+    "id": "T-03",
+    "text": "This revolutionary product will change your morning forever.",
+    "expected_evidence_ids": ["TERM-03"],
+    "expected_category": "terminology"
+  },
+  {
+    "id": "T-04",
+    "text": "Get this cheap smart bulb today for your living room.",
+    "expected_evidence_ids": ["TERM-01", "TERM-02"],
+    "expected_category": "terminology"
+  },
+  {
+    "id": "T-05",
+    "text": "Enjoy up to 30 hours of continuous wireless illumination on one charge.",
+    "expected_evidence_ids": ["AF-016"],
+    "expected_category": "factual"
+  },
+  {
+    "id": "T-06",
+    "text": "100% guaranteed to transform your productivity every single morning.",
+    "expected_evidence_ids": ["CLAIM-02"],
+    "expected_category": "claim"
+  },
+  {
+    "id": "T-07",
+    "text": "Our smart lamp outperforms every other competitor in light fidelity.",
+    "expected_evidence_ids": ["CLAIM-03"],
+    "expected_category": "claim"
+  },
+  {
+    "id": "T-08",
+    "text": "Hurry! Act now and buy this limited time only special offer!!!",
+    "expected_evidence_ids": ["TONE-01", "TONE-03"],
+    "expected_category": "tone"
+  },
+  {
+    "id": "T-09",
+    "text": "Send us an e-mail to claim your warranty replacement.",
+    "expected_evidence_ids": ["TERM-04"],
+    "expected_category": "terminology"
+  },
+  {
+    "id": "T-10",
+    "text": "The ultimate game-changer in residential ambient lighting.",
+    "expected_evidence_ids": ["TERM-03"],
+    "expected_category": "terminology"
+  },
+  {
+    "id": "T-11",
+    "text": "Meet the Lumora Smart Lamp, available in India and the UK with up to 12 hours of battery.",
+    "expected_evidence_ids": [],
+    "expected_category": "clean"
+  },
+  {
+    "id": "T-12",
+    "text": "Thoughtfully designed lighting adapting seamlessly to your natural circadian cycle.",
+    "expected_evidence_ids": [],
+    "expected_category": "clean"
+  },
+  {
+    "id": "T-13",
+    "text": "Featuring an award-winning design recognized by the International Design Excellence Award 2025.",
+    "expected_evidence_ids": [],
+    "expected_category": "clean"
+  },
+  {
+    "id": "T-14",
+    "text": "Now available in Britain and across India through approved online stores.",
+    "expected_evidence_ids": [],
+    "expected_category": "clean"
+  },
+  {
+    "id": "T-15",
+    "text": "The #1 choice for designers seeking high CRI desktop task lighting.",
+    "expected_evidence_ids": ["CLAIM-01"],
+    "expected_category": "claim"
+  },
+  {
+    "id": "T-16",
+    "text": "Now shipping directly to customers in Canada and Australia.",
+    "expected_evidence_ids": ["AF-014"],
+    "expected_category": "factual"
+  },
+  {
+    "id": "T-17",
+    "text": "A truly revolutionary smart bulb designed for modern compact apartments.",
+    "expected_evidence_ids": ["TERM-01", "TERM-03"],
+    "expected_category": "terminology"
+  },
+  {
+    "id": "T-18",
+    "text": "Delivering faster than market average delivery across London and Mumbai.",
+    "expected_evidence_ids": ["CLAIM-03"],
+    "expected_category": "claim"
+  },
+  {
+    "id": "T-19",
+    "text": "BUY NOW BEFORE STOCK RUNS OUT IN OUR WAREHOUSE",
+    "expected_evidence_ids": ["TONE-02"],
+    "expected_category": "tone"
+  },
+  {
+    "id": "T-20",
+    "text": "Engineered with a 1-year limited warranty and full support for Alexa and Google Home.",
+    "expected_evidence_ids": [],
+    "expected_category": "clean"
+  }
+]

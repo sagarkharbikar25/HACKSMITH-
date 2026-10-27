@@ -1,0 +1,438 @@
+{
+  "info": {
+    "name": "BrandGuard AI - API Test Collection",
+    "description": "Complete Postman collection for testing BrandGuard AI compliance API, auth roles, gates, and audit workflows.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "submission_id",
+      "value": "1",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "0. System & Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/health",
+              "host": ["{{base_url}}"],
+              "path": ["api", "health"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "1. Authentication",
+      "item": [
+        {
+          "name": "Login as Creator (Elena)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.token) {",
+                  "    pm.collectionVariables.set('token', jsonData.token);",
+                  "    pm.environment.set('creator_token', jsonData.token);",
+                  "    console.log('Creator token set successfully');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"creator@lumora.demo\",\n  \"password\": \"demo1234\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Login as Reviewer (Marcus)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.token) {",
+                  "    pm.environment.set('reviewer_token', jsonData.token);",
+                  "    console.log('Reviewer token set successfully');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"reviewer@lumora.demo\",\n  \"password\": \"demo1234\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Login as Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.token) {",
+                  "    pm.environment.set('admin_token', jsonData.token);",
+                  "    console.log('Admin token set successfully');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@lumora.demo\",\n  \"password\": \"demo1234\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Get Current User Profile (/auth/me)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/me",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "me"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Submissions & Audits (Core Lumora Flow)",
+      "item": [
+        {
+          "name": "Get Seeded Sample Drafts",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/samples",
+              "host": ["{{base_url}}"],
+              "path": ["api", "samples"]
+            }
+          }
+        },
+        {
+          "name": "Create Submission (Lumora Sample Caption)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.id) {",
+                  "    pm.collectionVariables.set('submission_id', jsonData.id.toString());",
+                  "    pm.environment.set('submission_id', jsonData.id.toString());",
+                  "    console.log('Active submission_id set to ' + jsonData.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Lumora Launch Social Campaign\",\n  \"content_type\": \"social\",\n  \"body\": \"Experience the world's best smart lamp! Now available across the US for an unbelievable price of just $49. It's truly a revolutionary product with award-winning design!\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/submissions",
+              "host": ["{{base_url}}"],
+              "path": ["api", "submissions"]
+            }
+          }
+        },
+        {
+          "name": "Run Audit on Submission (Version 1)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/submissions/{{submission_id}}/audit",
+              "host": ["{{base_url}}"],
+              "path": ["api", "submissions", "{{submission_id}}", "audit"]
+            }
+          }
+        },
+        {
+          "name": "Submit Gate - Expect Blocked (422 CANNOT_SUBMIT_OPEN_FINDINGS)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/submissions/{{submission_id}}/submit",
+              "host": ["{{base_url}}"],
+              "path": ["api", "submissions", "{{submission_id}}", "submit"]
+            }
+          }
+        },
+        {
+          "name": "Save Fixed Version 2 (Auto Audits Clean)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"body\": \"Experience the leading smart lamp! Now available in India and the UK for an unbelievable price of just $49. It's truly an innovative product with award-winning design!\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/submissions/{{submission_id}}/versions",
+              "host": ["{{base_url}}"],
+              "path": ["api", "submissions", "{{submission_id}}", "versions"]
+            }
+          }
+        },
+        {
+          "name": "Send for Review (Now Passes Gate -> in_review)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/submissions/{{submission_id}}/submit",
+              "host": ["{{base_url}}"],
+              "path": ["api", "submissions", "{{submission_id}}", "submit"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Review & Approval",
+      "item": [
+        {
+          "name": "Reviewer Approves Submission",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{reviewer_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"decision\": \"approve\",\n  \"comment\": \"All claims verified and territorial contradiction corrected. Approved for publishing.\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/submissions/{{submission_id}}/decision",
+              "host": ["{{base_url}}"],
+              "path": ["api", "submissions", "{{submission_id}}", "decision"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Knowledge & Evidence",
+      "item": [
+        {
+          "name": "Get Evidence Record (AF-014 Availability)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/knowledge/evidence/AF-014",
+              "host": ["{{base_url}}"],
+              "path": ["api", "knowledge", "evidence", "AF-014"]
+            }
+          }
+        },
+        {
+          "name": "List All Rules",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/knowledge/rules",
+              "host": ["{{base_url}}"],
+              "path": ["api", "knowledge", "rules"]
+            }
+          }
+        },
+        {
+          "name": "List All Facts",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/knowledge/facts",
+              "host": ["{{base_url}}"],
+              "path": ["api", "knowledge", "facts"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Insights & Audit Trail",
+      "item": [
+        {
+          "name": "Get Recurring Insights",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/insights/recurring",
+              "host": ["{{base_url}}"],
+              "path": ["api", "insights", "recurring"]
+            }
+          }
+        },
+        {
+          "name": "Get Admin Audit Log",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/audit-log",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "audit-log"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

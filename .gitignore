@@ -22,13 +22,31 @@ ENV/
 .coverage
 htmlcov/
 
-# Environments
+# Environments & secrets
 .env
+*.env
+.env.*
 
 # Node / Frontend
 node_modules/
 dist/
 .vite/
+
+# Plans & Docs (Private / Internal)
+plan/
+
+# Agent configuration, workflows & skills
+.agent/
+.agents/
+.gemini/
+.gsd/
+skills/
+adapters/
+scripts/
+model_capabilities.yaml
+GSD-STYLE.md
+PROJECT_RULES.md
+VERSION
 
 # IDE / OS
 .DS_Store

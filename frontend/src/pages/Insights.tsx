@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { AlertTriangle, CheckCircle, RefreshCw } from "lucide-react";
+import { AlertTriangle, CheckCircle2, RefreshCw } from "lucide-react";
 import { api } from "../api/client";
 import type { InsightsData } from "../types";
 
@@ -157,7 +157,7 @@ export const Insights: React.FC = () => {
                           </span>
                         ) : (
                           <span className="inline-flex items-center gap-1 text-success text-[11px] font-mono">
-                            <CheckCircle size={12} />
+                            <CheckCircle2 size={12} />
                             <span>Calibrated</span>
                           </span>
                         )}

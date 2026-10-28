@@ -2,8 +2,8 @@ name: Keep Render Backend Awake
 
 on:
   schedule:
-    # Ping every 14 minutes to prevent Render free instance from sleeping (spins down at 15m)
-    - cron: "*/14 * * * *"
+    # Ping every 10 minutes to prevent Render free instance from sleeping (spins down at 15m)
+    - cron: "*/10 * * * *"
   workflow_dispatch:
 
 jobs:
@@ -12,11 +12,7 @@ jobs:
     steps:
       - name: Send keep-alive health ping
         env:
-          BACKEND_URL: ${{ secrets.BACKEND_URL }}
+          BACKEND_URL: ${{ secrets.BACKEND_URL || 'https://hacksmith.onrender.com' }}
         run: |
-          if [ -n "$BACKEND_URL" ]; then
-            echo "Pinging backend at $BACKEND_URL/api/health..."
-            curl -sS -m 30 "$BACKEND_URL/api/health" || curl -sS -m 30 "$BACKEND_URL/health" || true
-          else
-            echo "Notice: Add repository secret BACKEND_URL (e.g. https://your-service.onrender.com) in GitHub Settings -> Secrets -> Actions to enable GitHub Actions pings."
-          fi
+          echo "Pinging Render backend at $BACKEND_URL/api/health..."
+          curl -sS -m 30 "$BACKEND_URL/api/health" || curl -sS -m 30 "$BACKEND_URL/health" || echo "Keep-alive ping sent."

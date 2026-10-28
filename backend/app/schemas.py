@@ -5,10 +5,15 @@ from typing import Optional, List, Dict, Any, Literal
 from datetime import datetime, date
 from pydantic import BaseModel, Field
 
-# --- Auth ---
 class LoginRequest(BaseModel):
     email: str
     password: str
+
+class RegisterRequest(BaseModel):
+    name: str
+    email: str
+    password: str
+    role: Literal["creator", "agency", "reviewer", "brand_manager", "admin"] = "creator"
 
 class UserOut(BaseModel):
     id: int

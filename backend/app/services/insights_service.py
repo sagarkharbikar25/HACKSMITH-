@@ -15,11 +15,16 @@ def get_insights(db: Session) -> InsightsOut:
 
     approved_count = sum(1 for r in reviews if r.decision == "approve")
     revision_count = sum(1 for r in reviews if r.decision == "request_revision")
+    dismissed_count = sum(1 for f in findings if f.resolution == "dismissed")
+    overridden_count = sum(1 for r in reviews if r.override_reason)
 
     totals = {
         "submissions": submissions_count,
         "audits": max(audits_count, len(db.query(Version).all())),
         "findings": len(findings),
+        "total_findings": len(findings),
+        "dismissed": dismissed_count,
+        "overridden": overridden_count,
         "approved": approved_count,
         "revision_requested": revision_count
     }

@@ -38,6 +38,37 @@ def list_facts(
         results.append(item)
     return results
 
+@router.get("/facts/{id}", response_model=FactOut)
+def get_fact(
+    id: str,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    fact = db.query(Fact).filter(Fact.id == id).first()
+    if not fact:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail={"error": {"code": "NOT_FOUND", "message": f"Fact '{id}' not found", "details": {"id": id}}}
+        )
+    item = FactOut.model_validate(fact)
+    if user.role == "agency" and fact.kind != "substantiation":
+        item.statement = "[REDACTED: Confidential internal statement]"
+    return item
+
+@router.get("/rules/{id}", response_model=RuleOut)
+def get_rule(
+    id: str,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    rule = db.query(Rule).filter(Rule.id == id).first()
+    if not rule:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail={"error": {"code": "NOT_FOUND", "message": f"Rule '{id}' not found", "details": {"id": id}}}
+        )
+    return RuleOut.model_validate(rule)
+
 @router.get("/evidence/{id}")
 def get_evidence(
     id: str,

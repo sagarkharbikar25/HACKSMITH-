@@ -43,7 +43,7 @@ def validate_submission_gate(db: Session, submission: Submission, latest_version
     if open_blockers:
         blocker_ids = [f.issue_id for f in open_blockers]
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=422,
             detail={
                 "error": {
                     "code": "CANNOT_SUBMIT_OPEN_FINDINGS",
@@ -60,7 +60,7 @@ def validate_dismissal_gate(finding: Finding, reason: Optional[str]):
     """
     if finding.severity == "critical":
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=422,
             detail={
                 "error": {
                     "code": "CANNOT_DISMISS_CRITICAL",
@@ -72,7 +72,7 @@ def validate_dismissal_gate(finding: Finding, reason: Optional[str]):
 
     if not reason or len(reason.strip()) < 3:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=422,
             detail={
                 "error": {
                     "code": "DISMISSAL_REASON_REQUIRED",

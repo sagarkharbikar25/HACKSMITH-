@@ -7,19 +7,12 @@ from sqlalchemy.orm import sessionmaker, declarative_base
 from .config import settings
 
 db_url = settings.DATABASE_URL
-if db_url.startswith("postgres://"):
-    db_url = db_url.replace("postgres://", "postgresql://", 1)
 
-# Handle SQLAlchemy dialect driver selection gracefully
-if db_url.startswith("postgresql://") and not db_url.startswith("postgresql+"):
-    try:
-        import psycopg  # psycopg v3
-    except ImportError:
-        try:
-            import psycopg2  # psycopg v2 fallback
-            db_url = db_url.replace("postgresql://", "postgresql+psycopg2://", 1)
-        except ImportError:
-            pass
+# Normalize Supabase / Render PostgreSQL connection strings to explicitly use psycopg2
+if db_url.startswith("postgres://"):
+    db_url = db_url.replace("postgres://", "postgresql+psycopg2://", 1)
+elif db_url.startswith("postgresql://") and not db_url.startswith("postgresql+"):
+    db_url = db_url.replace("postgresql://", "postgresql+psycopg2://", 1)
 
 connect_args = {}
 if db_url.startswith("sqlite"):

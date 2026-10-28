@@ -1,4 +1,9 @@
 {
+  "name": "brandguard-ai",
+  "scripts": {
+    "dev": "npm --prefix frontend run dev",
+    "build": "npm --prefix frontend run build"
+  },
   "dependencies": {
     "@supabase/server": "^1.9.2"
   }

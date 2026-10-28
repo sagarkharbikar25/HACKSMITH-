@@ -53,3 +53,10 @@ VERSION
 Thumbs.db
 .vscode/
 .idea/
+
+# Large Model Weights, Archives & Bundles
+*.safetensors
+*.gguf
+*.zip
+temp_frontend_bundle/
+frontend_ayush_bundle.zip

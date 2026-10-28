@@ -4,6 +4,7 @@ Idempotent database seeding on application boot.
 import os
 import json
 from datetime import date, datetime
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 from .models import User, Rule, Fact, Submission, Version, Finding
 from .security import hash_password
@@ -113,3 +114,19 @@ def seed_database(db: Session, force_reset: bool = False):
                 existing.tags = fc.get("tags", [])
                 existing.kind = fc.get("kind", "fact")
         db.commit()
+
+    # 4. Resync PostgreSQL auto-increment sequences to prevent duplicate key errors on new inserts
+    sync_postgres_sequences(db)
+
+def sync_postgres_sequences(db: Session):
+    """
+    Resets Postgres sequences to match the maximum ID in tables seeded with explicit IDs.
+    Prevents duplicate key errors on subsequent INSERTs.
+    """
+    tables = ["users", "submissions", "versions", "findings", "reviews", "comments", "audit_logs"]
+    for table in tables:
+        try:
+            db.execute(text(f"SELECT setval(pg_get_serial_sequence('{table}', 'id'), COALESCE((SELECT MAX(id) FROM {table}), 1));"))
+            db.commit()
+        except Exception:
+            db.rollback()

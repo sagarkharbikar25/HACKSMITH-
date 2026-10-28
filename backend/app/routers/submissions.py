@@ -3,6 +3,7 @@ Submissions, versions, audit triggers, and samples router.
 """
 import json
 import os
+import difflib
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -224,7 +225,7 @@ def create_version(
     result = run_audit(db, new_ver, actor_id=user.id)
     return result
 
-@router.post("/submissions/{id}/submit")
+@router.post("/submissions/{id}/submit", response_model=SubmissionDetailOut)
 def submit_for_review(
     id: int,
     user: User = Depends(require_roles("creator", "agency")),
@@ -251,4 +252,47 @@ def submit_for_review(
     db.commit()
 
     write_audit_log(db, actor_id=user.id, action="submission.submit", object_type="submission", object_id=str(sub.id))
-    return {"status": "in_review", "message": "Submitted for reviewer approval"}
+    return get_submission(sub.id, user, db)
+
+@router.get("/submissions/{id}/diff")
+def get_submission_diff(
+    id: int,
+    v1: Optional[int] = None,
+    v2: Optional[int] = None,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    sub = db.query(Submission).filter(Submission.id == id).first()
+    if not sub:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail={"error": {"code": "NOT_FOUND", "message": "Submission not found"}}
+        )
+
+    versions = db.query(Version).filter(Version.submission_id == sub.id).order_by(Version.number.asc()).all()
+    if len(versions) < 2:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={"error": {"code": "INSUFFICIENT_VERSIONS", "message": "At least 2 versions are required to compute a diff."}}
+        )
+
+    ver1 = next((v for v in versions if v.number == v1), versions[0])
+    ver2 = next((v for v in versions if v.number == v2), versions[-1])
+
+    lines1 = ver1.body.splitlines(keepends=True)
+    lines2 = ver2.body.splitlines(keepends=True)
+    diff_lines = list(difflib.unified_diff(
+        lines1, lines2,
+        fromfile=f"Version {ver1.number}",
+        tofile=f"Version {ver2.number}"
+    ))
+    diff_text = "".join(diff_lines)
+
+    return {
+        "submission_id": sub.id,
+        "v1_number": ver1.number,
+        "v2_number": ver2.number,
+        "v1_body": ver1.body,
+        "v2_body": ver2.body,
+        "diff": diff_text
+    }

@@ -11,6 +11,7 @@ from ..services.insights_service import get_insights
 
 router = APIRouter(prefix="/insights", tags=["insights"])
 
+@router.get("/summary", response_model=InsightsOut)
 @router.get("/recurring", response_model=InsightsOut)
 def fetch_insights(
     user: User = Depends(require_roles("reviewer", "brand_manager", "admin")),

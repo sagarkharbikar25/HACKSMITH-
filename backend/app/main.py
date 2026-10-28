@@ -9,7 +9,9 @@ from fastapi.exceptions import RequestValidationError
 
 from .config import settings
 from .db import engine, Base, SessionLocal
+from .models import Submission
 from .seed import seed_database
+from .seed_demo_submissions import seed_demo_submissions
 from .routers import auth, submissions, findings, review, knowledge, insights, admin
 
 @asynccontextmanager
@@ -20,6 +22,8 @@ async def lifespan(app: FastAPI):
     db = SessionLocal()
     try:
         seed_database(db, force_reset=False)
+        if db.query(Submission).count() == 0:
+            seed_demo_submissions(db)
     finally:
         db.close()
     yield

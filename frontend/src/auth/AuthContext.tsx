@@ -2,37 +2,40 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import type { User, Role } from "../types";
 import { api } from "../api/client";
 
-export interface DemoPersona {
+export interface SystemCredential {
   role: Role;
   name: string;
   email: string;
   label: string;
-  description: string;
+  pass: string;
 }
 
-export const DEMO_PERSONAS: DemoPersona[] = [
+export const SYSTEM_CREDENTIALS: SystemCredential[] = [
   {
     role: "creator",
-    name: "Elena Vance",
-    email: "creator@lumora.demo",
-    label: "Creator",
-    description: "Submits marketing drafts, audits copy, applies compliance fixes.",
+    name: "Creator",
+    email: "saar@test.com",
+    label: "Creator Role",
+    pass: "12345678",
   },
   {
     role: "reviewer",
-    name: "Marcus Cole",
-    email: "reviewer@lumora.demo",
-    label: "Compliance Reviewer",
-    description: "Approves or requests revisions on submissions with mandatory justification.",
+    name: "Reviewer",
+    email: "ss@test.com",
+    label: "Reviewer Role",
+    pass: "12345678",
   },
   {
     role: "brand_manager",
-    name: "Sarah Chen",
-    email: "brand@lumora.demo",
-    label: "Brand Manager",
-    description: "Full governance: rule health, brand knowledge, and immutable audit ledger.",
+    name: "Brand Manager",
+    email: "sk@test.com",
+    label: "Brand Manager Role",
+    pass: "12345678",
   },
 ];
+
+// Compatibility alias
+export const DEMO_PERSONAS = SYSTEM_CREDENTIALS;
 
 export function getRoleHomeRoute(role?: string): string {
   switch (role) {
@@ -92,7 +95,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     initAuth();
   }, []);
 
-  const login = async (email: string, password: string = "demo1234"): Promise<User> => {
+  const login = async (email: string, password: string = "12345678"): Promise<User> => {
     const res = await api.auth.login(email, password);
     sessionStorage.setItem("brandguard_token", res.token);
     sessionStorage.setItem("brandguard_user", JSON.stringify(res.user));
@@ -111,7 +114,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const quickLogin = async (email: string): Promise<User> => {
-    return login(email, "demo1234");
+    const cred = SYSTEM_CREDENTIALS.find((c) => c.email.toLowerCase() === email.toLowerCase());
+    return login(email, cred ? cred.pass : "12345678");
   };
 
   const logout = () => {

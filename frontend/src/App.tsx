@@ -109,7 +109,7 @@ export default function App() {
                 path="/creator/editor/:id"
                 element={
                   <ProtectedLayout>
-                    <RoleGuard allowedRoles={["creator", "agency", "admin"]} moduleName="Creator Studio Editor">
+                    <RoleGuard allowedRoles={["creator", "agency", "brand_manager", "admin"]} moduleName="Creator Studio Editor">
                       <SubmissionDetailView />
                     </RoleGuard>
                   </ProtectedLayout>
@@ -144,7 +144,7 @@ export default function App() {
                 path="/reviewer/evaluate/:id"
                 element={
                   <ProtectedLayout>
-                    <RoleGuard allowedRoles={["reviewer", "admin"]} moduleName="Compliance Evaluation Terminal">
+                    <RoleGuard allowedRoles={["reviewer", "brand_manager", "admin"]} moduleName="Compliance Evaluation Terminal">
                       <SubmissionDetailView />
                     </RoleGuard>
                   </ProtectedLayout>

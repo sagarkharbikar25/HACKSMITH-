@@ -83,11 +83,9 @@ export const FindingCard: React.FC<Props> = ({
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.2 }}
-      className={`relative p-5 rounded-2xl bg-card border border-line border-l-[3px] ${
-        severityConfig.border
-      } card-frame-hover ${
-        isFocused ? "ring-2 ring-primary shadow-[0_0_24px_rgba(175,230,7,0.25)] bg-card/90 frame-pulse" : "hover:border-primary/40"
-      } ${isResolved ? "opacity-75" : ""}`}
+      className={`relative p-5 rounded-2xl bg-card border border-line border-l-[3px] ${severityConfig.border
+        } card-frame-hover ${isFocused ? "ring-2 ring-primary shadow-[0_0_24px_rgba(175,230,7,0.25)] bg-card/90 frame-pulse" : "hover:border-primary/40"
+        } ${isResolved ? "opacity-75" : ""}`}
     >
       {/* Gemini Subtle Top-Right Stamp */}
       {isGemini && (
@@ -102,9 +100,8 @@ export const FindingCard: React.FC<Props> = ({
         <div className="flex items-center gap-2">
           {/* Severity Badge: Icon + Label + Color (WCAG 1.4.1) */}
           <span
-            className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase font-mono border flex items-center gap-1.5 ${
-              severityConfig.badge
-            } ${isCritical && !isResolved ? "animate-[pulse_1.5s_ease-in-out_2]" : ""}`}
+            className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase font-mono border flex items-center gap-1.5 ${severityConfig.badge
+              } ${isCritical && !isResolved ? "animate-[pulse_1.5s_ease-in-out_2]" : ""}`}
           >
             <Icon size={12} />
             <span>{severityConfig.label}</span>
@@ -163,11 +160,10 @@ export const FindingCard: React.FC<Props> = ({
       {/* Suggested Fix with Engine-Specific Watermarking */}
       {finding.suggested_correction && !isResolved && (
         <div
-          className={`mt-3 p-3.5 rounded-xl border relative overflow-hidden flex flex-col gap-2 ${
-            isGemini
+          className={`mt-3 p-3.5 rounded-xl border relative overflow-hidden flex flex-col gap-2 ${isGemini
               ? "bg-gradient-to-br from-blue-950/20 via-[#0E0E0B] to-indigo-950/30 border-blue-500/40 shadow-[0_0_20px_rgba(59,130,246,0.12)]"
               : "bg-success/10 border-success/30"
-          }`}
+            }`}
         >
           {/* Faint Background Watermark for Gemini */}
           {isGemini && (
@@ -181,9 +177,8 @@ export const FindingCard: React.FC<Props> = ({
           <div className="flex items-center justify-between relative z-10">
             <div className="flex items-center gap-2">
               <span
-                className={`text-[10px] uppercase font-mono font-bold flex items-center gap-1 ${
-                  isGemini ? "text-blue-400" : "text-success"
-                }`}
+                className={`text-[10px] uppercase font-mono font-bold flex items-center gap-1 ${isGemini ? "text-blue-400" : "text-success"
+                  }`}
               >
                 {isGemini ? <Sparkles size={11} className="text-blue-400" /> : <Cpu size={11} className="text-primary" />}
                 <span>Suggested correction</span>
@@ -205,11 +200,10 @@ export const FindingCard: React.FC<Props> = ({
                 whileHover={{ y: -1 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => onApplyFix(finding)}
-                className={`px-2.5 py-1 rounded-lg font-semibold text-xs transition-all flex items-center gap-1 shadow-sm ${
-                  isGemini
+                className={`px-2.5 py-1 rounded-lg font-semibold text-xs transition-all flex items-center gap-1 shadow-sm ${isGemini
                     ? "bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-400 hover:to-indigo-500 text-white shadow-[0_0_12px_rgba(59,130,246,0.35)]"
                     : "bg-success text-black hover:bg-success/90"
-                }`}
+                  }`}
               >
                 <span>Apply suggestion</span>
                 <ArrowRight size={12} />
@@ -220,11 +214,10 @@ export const FindingCard: React.FC<Props> = ({
           {/* Suggestion Text with Watermarked Footer */}
           <div className="relative z-10">
             <p
-              className={`text-xs font-mono p-2.5 rounded-lg border leading-relaxed ${
-                isGemini
+              className={`text-xs font-mono p-2.5 rounded-lg border leading-relaxed ${isGemini
                   ? "text-blue-100 bg-[#0E0E0B]/90 border-blue-500/30"
                   : "text-success bg-[#0E0E0B]/60 border-success/20"
-              }`}
+                }`}
             >
               {finding.suggested_correction}
             </p>

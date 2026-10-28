@@ -24,9 +24,9 @@ export const HowToEvaluateDrawer: React.FC<Props> = ({ isOpen, onClose }) => {
   const steps = [
     {
       step: 1,
-      title: "Zero-Typing Login as Creator",
-      desc: "Log in with 1 click using the 'Creator (Cora)' card. No credentials required.",
-      badge: "Persona: Creator",
+      title: "Sign in as Creator Role",
+      desc: "Sign in using the Creator system account (saar@test.com / 12345678).",
+      badge: "Account: saar@test.com",
     },
     {
       step: 2,
@@ -59,9 +59,9 @@ export const HowToEvaluateDrawer: React.FC<Props> = ({ isOpen, onClose }) => {
     },
     {
       step: 6,
-      title: "Switch Persona to Reviewer",
-      desc: "Use the top-right persona switcher to jump directly to 'Riley Reviewer'. Navigate to the Review Queue to inspect the submitted copy and version diff.",
-      badge: "Persona: Reviewer",
+      title: "Sign in as Compliance Reviewer",
+      desc: "Sign out and sign in using the Reviewer account (ss@test.com / 12345678). Navigate to the Review Queue to inspect the submitted copy and version diff.",
+      badge: "Account: ss@test.com",
     },
     {
       step: 7,

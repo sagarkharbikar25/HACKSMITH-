@@ -34,6 +34,12 @@ def get_insights(db: Session) -> InsightsOut:
     for f in findings:
         by_category[f.category] += 1
 
+    # Ensure standard categories exist so the dashboard renders completely
+    default_categories = ["prohibited_terms", "tone_and_voice", "factual_accuracy", "superlatives", "regulatory"]
+    for cat in default_categories:
+        if cat not in by_category:
+            by_category[cat] = 0
+
     # Aggregate by rule/evidence
     evidence_stats = defaultdict(lambda: {"fired": 0, "dismissed": 0, "overridden": 0})
     for f in findings:
@@ -42,7 +48,6 @@ def get_insights(db: Session) -> InsightsOut:
             evidence_stats[f.evidence_id]["dismissed"] += 1
 
     # Overridden counts from reviews with override_reason
-    # If a review had an override reason, count open critical/high findings as overridden
     for r in reviews:
         if r.override_reason:
             v = db.query(Version).filter(Version.id == r.version_id).first()
@@ -51,9 +56,16 @@ def get_insights(db: Session) -> InsightsOut:
                     if vf.severity in ("critical", "high") and vf.resolution == "open":
                         evidence_stats[vf.evidence_id]["overridden"] += 1
 
-    # Fetch labels
-    rule_map = {r.id: r.message for r in db.query(Rule).all()}
-    fact_map = {f.id: f.statement for f in db.query(Fact).all()}
+    # Fetch all active rules and facts from database so Brand Manager sees the entire guideline suite
+    all_rules = db.query(Rule).all()
+    all_facts = db.query(Fact).all()
+    rule_map = {r.id: r.message for r in all_rules}
+    fact_map = {f.id: f.statement for f in all_facts}
+
+    # Include all configured rules so brand manager tracks 100% of guidelines
+    for r in all_rules:
+        if r.id not in evidence_stats and r.status != "retired":
+            evidence_stats[r.id] = {"fired": 0, "dismissed": 0, "overridden": 0}
 
     rule_insights: List[RuleInsight] = []
     for ev_id, stats in evidence_stats.items():
@@ -80,7 +92,8 @@ def get_insights(db: Session) -> InsightsOut:
             )
         )
 
-    rule_insights.sort(key=lambda x: x.fired, reverse=True)
+    # Sort so active/frequently-fired rules appear first
+    rule_insights.sort(key=lambda x: (x.fired, x.dismissed), reverse=True)
 
     return InsightsOut(
         totals=totals,

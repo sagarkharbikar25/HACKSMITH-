@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { ShieldCheck, BookOpen, BarChart3, History, CheckSquare, ChevronDown, LogOut, HelpCircle } from "lucide-react";
-import { useAuth, DEMO_PERSONAS, getRoleHomeRoute } from "../auth/AuthContext";
+import { ShieldCheck, BookOpen, BarChart3, History, CheckSquare, ChevronDown, LogOut, HelpCircle, Shield } from "lucide-react";
+import { useAuth } from "../auth/AuthContext";
 import { HowToEvaluateDrawer } from "./HowToEvaluateDrawer";
 
 import { BrandLogo } from "./BrandLogo";
 
 export const Navbar: React.FC = () => {
-  const { user, quickLogin, logout } = useAuth();
+  const { user, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -37,14 +37,9 @@ export const Navbar: React.FC = () => {
 
   const navLinks = getModuleLinks();
 
-  const handleSwitchPersona = async (email: string) => {
-    setPersonaMenuOpen(false);
-    const logged = await quickLogin(email);
-    navigate(getRoleHomeRoute(logged.role));
-  };
-
   const handleLogout = () => {
     logout();
+    setPersonaMenuOpen(false);
     navigate("/login");
   };
 
@@ -63,8 +58,8 @@ export const Navbar: React.FC = () => {
                 {user.role === "reviewer"
                   ? "Review Terminal"
                   : user.role === "admin" || user.role === "brand_manager"
-                  ? "Governance Center"
-                  : "Creator Studio"}
+                    ? "Governance Center"
+                    : "Creator Studio"}
               </span>
             )}
           </Link>
@@ -81,11 +76,10 @@ export const Navbar: React.FC = () => {
                   <Link
                     key={item.to}
                     to={item.to}
-                    className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                      isActive
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${isActive
                         ? "bg-white/10 text-white border border-line shadow-sm"
                         : "text-muted hover:text-white hover:bg-white/5"
-                    }`}
+                      }`}
                   >
                     <Icon size={14} className={isActive ? "text-primary" : "text-muted"} />
                     {item.label}
@@ -110,15 +104,15 @@ export const Navbar: React.FC = () => {
               <HelpCircle size={14} className="text-muted group-hover:text-signal transition-colors" />
             </button>
 
-            {/* Persona Switcher Dropdown */}
+            {/* User Session Menu */}
             {user ? (
               <div className="relative">
                 <button
                   onClick={() => setPersonaMenuOpen(!personaMenuOpen)}
                   className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-card hover:bg-white/10 border border-line text-xs transition-all"
                 >
-                  <div className="w-5 h-5 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold text-[10px]">
-                    {user.name.charAt(0)}
+                  <div className="w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold text-xs">
+                    {user.name.charAt(0).toUpperCase()}
                   </div>
                   <div className="text-left hidden sm:block">
                     <div className="text-[11px] font-semibold text-white leading-tight">{user.name}</div>
@@ -128,40 +122,38 @@ export const Navbar: React.FC = () => {
                 </button>
 
                 {personaMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-64 rounded-xl bg-[#1D1D18] border border-line shadow-2xl p-2 z-50 animate-in fade-in zoom-in-95">
-                    <div className="px-2 py-1.5 border-b border-line mb-1">
-                      <p className="text-[10px] uppercase font-mono text-muted tracking-wider">
-                        Quick Switch Persona (Zero Typing)
-                      </p>
+                  <div className="absolute right-0 mt-2 w-72 rounded-xl bg-[#1D1D18] border border-line shadow-2xl p-3 z-50 animate-in fade-in zoom-in-95">
+                    {/* User Profile Card */}
+                    <div className="pb-3 border-b border-line mb-3">
+                      <div className="flex items-center gap-2.5 mb-2">
+                        <div className="w-8 h-8 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold text-sm">
+                          {user.name.charAt(0).toUpperCase()}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-xs font-bold text-white truncate">{user.name}</p>
+                          <p className="text-[10px] text-muted font-mono truncate">{user.email}</p>
+                        </div>
+                      </div>
+
+                      <div className="mt-2 flex items-center gap-1.5 px-2 py-1 rounded bg-[#0E0E0B] border border-line">
+                        <Shield size={11} className="text-primary shrink-0" />
+                        <span className="text-[10px] font-mono uppercase font-bold text-primary">
+                          {user.role.replace(/_/g, " ")} CLEARANCE
+                        </span>
+                      </div>
                     </div>
-                    <div className="space-y-1">
-                      {DEMO_PERSONAS.map((p) => {
-                        const isCurrent = user.email === p.email;
-                        return (
-                          <button
-                            key={p.email}
-                            onClick={() => handleSwitchPersona(p.email)}
-                            className={`w-full flex items-start gap-2 p-2 rounded-lg text-left transition-all ${
-                              isCurrent
-                                ? "bg-primary/15 border border-primary/30 text-white"
-                                : "hover:bg-white/5 text-muted hover:text-white"
-                            }`}
-                          >
-                            <span className="text-xs font-semibold text-white min-w-16">
-                              {p.label}
-                            </span>
-                            <span className="text-[10px] text-muted line-clamp-1">{p.name}</span>
-                          </button>
-                        );
-                      })}
+
+                    <div className="px-1 py-1 text-[10px] text-muted font-mono leading-relaxed">
+                      Active authenticated database session. Role switching bypass is restricted.
                     </div>
+
                     <div className="mt-2 pt-2 border-t border-line">
                       <button
                         onClick={handleLogout}
-                        className="w-full flex items-center gap-2 p-2 rounded-lg text-left text-critical hover:bg-critical/10 text-xs transition-colors"
+                        className="w-full flex items-center gap-2 px-2.5 py-2 rounded-lg text-left text-critical hover:bg-critical/10 text-xs font-semibold transition-colors"
                       >
                         <LogOut size={13} />
-                        <span>Sign Out</span>
+                        <span>Sign Out of Session</span>
                       </button>
                     </div>
                   </div>

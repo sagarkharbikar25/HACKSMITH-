@@ -4,8 +4,27 @@ import { Plus, Sparkles, FileText, ArrowRight, AlertCircle, CheckCircle2, Refres
 import { api } from "../api/client";
 import type { Submission } from "../types";
 import { SAMPLE_DRAFT_TEXT } from "../components/HowToEvaluateDrawer";
+import { motion, type Variants } from "motion/react";
 
-import { motion } from "motion/react";
+const tableContainerVariants: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.05,
+      delayChildren: 0.1,
+    },
+  },
+};
+
+const tableRowVariants: Variants = {
+  hidden: { opacity: 0, y: 10 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.28, ease: [0.22, 1, 0.36, 1] },
+  },
+};
 
 export const Workspace: React.FC = () => {
   const navigate = useNavigate();
@@ -75,7 +94,7 @@ export const Workspace: React.FC = () => {
       case "in_review":
         return "bg-primary/20 text-primary border-primary/40";
       case "revision_requested":
-        return "bg-high/20 text-high border-high/40";
+        return "bg-high/20 text-high border-high/40 animate-pulse";
       case "draft":
       default:
         return "bg-white/10 text-muted border-line";
@@ -83,14 +102,14 @@ export const Workspace: React.FC = () => {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
-      className="max-w-7xl mx-auto px-4 sm:px-6 py-8"
-    >
-      {/* Top Banner & Primary Actions */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pb-6 border-b border-line">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+      {/* Top Banner & Primary Actions with Entrance Animation */}
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+        className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pb-6 border-b border-line animate-fade-in-up"
+      >
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-2xl font-bold font-display text-white tracking-tight">
@@ -106,40 +125,44 @@ export const Workspace: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-3">
-          {/* Signal Lime Green "Try Sample Draft" Button (Section 1 & 4: only lime element) with P0-2 motion */}
-          <motion.button
-            whileHover={{ y: -1 }}
-            whileTap={{ scale: 0.98 }}
-            transition={{ duration: 0.12 }}
+          {/* Signal Lime Green "Try Sample Draft" Button with Micro-Interactions */}
+          <button
             onClick={handleCreateSampleDraft}
             disabled={isCreatingSample}
-            className="relative px-4 py-2.5 rounded-xl bg-signal text-black font-bold font-display text-xs hover:bg-signal/90 shadow-[0_0_20px_rgba(175,230,7,0.3)] flex items-center gap-2 group disabled:opacity-50"
+            className="relative px-4 py-2.5 rounded-xl bg-signal text-black font-bold font-display text-xs hover:bg-signal/90 hover:-translate-y-0.5 active:scale-95 transition-all duration-200 shadow-[0_0_20px_rgba(175,230,7,0.3)] hover:shadow-[0_0_25px_rgba(175,230,7,0.45)] flex items-center gap-2 group disabled:opacity-50 cursor-pointer"
           >
-            <Sparkles size={15} className="text-black group-hover:rotate-12 transition-transform" />
+            <Sparkles size={15} className="text-black group-hover:rotate-12 transition-transform duration-300" />
             <span>{isCreatingSample ? "Creating Sample..." : "Try the Lumora Sample Draft"}</span>
             <span className="w-1.5 h-1.5 rounded-full bg-black/60" />
-          </motion.button>
+          </button>
 
+          {/* New Custom Draft Button with Lift and Click State */}
           <button
             onClick={() => setShowNewModal(true)}
-            className="px-3.5 py-2.5 rounded-xl bg-card hover:bg-white/10 border border-line text-xs font-semibold text-white transition-all flex items-center gap-1.5"
+            className="px-3.5 py-2.5 rounded-xl bg-card hover:bg-white/15 hover:-translate-y-0.5 active:scale-95 border border-line text-xs font-semibold text-white transition-all duration-200 flex items-center gap-1.5 cursor-pointer shadow-sm hover:shadow"
           >
-            <Plus size={15} />
+            <Plus size={15} className="transition-transform duration-200 group-hover:rotate-90" />
             <span>New Custom Draft</span>
           </button>
 
+          {/* Refresh Button with Smooth 360-Degree Rotation */}
           <button
             onClick={fetchSubmissions}
-            className="p-2.5 rounded-xl bg-card hover:bg-white/10 border border-line text-muted hover:text-white transition-all"
+            className="p-2.5 rounded-xl bg-card hover:bg-white/15 hover:-translate-y-0.5 active:scale-95 border border-line text-muted hover:text-white transition-all duration-200 group cursor-pointer"
             title="Refresh submissions"
           >
-            <RefreshCw size={15} className={isLoading ? "animate-spin" : ""} />
+            <RefreshCw
+              size={15}
+              className={`transition-transform duration-500 ease-out group-hover:rotate-180 group-active:rotate-360 ${
+                isLoading ? "animate-spin" : ""
+              }`}
+            />
           </button>
         </div>
-      </div>
+      </motion.div>
 
       {error && (
-        <div className="mt-4 p-3 rounded-xl bg-critical/10 border border-critical/30 text-critical text-xs flex items-center gap-2">
+        <div className="mt-4 p-3 rounded-xl bg-critical/10 border border-critical/30 text-critical text-xs flex items-center gap-2 animate-in fade-in">
           <AlertCircle size={15} />
           <span>{error}</span>
         </div>
@@ -177,15 +200,23 @@ export const Workspace: React.FC = () => {
                   <th className="px-5 py-3 font-semibold text-right">Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-line">
-                {submissions.map((sub) => (
-                  <tr
+              {/* Staggered Row Entrance */}
+              <motion.tbody
+                variants={tableContainerVariants}
+                initial="hidden"
+                animate="visible"
+                className="divide-y divide-line"
+              >
+                {submissions.map((sub, index) => (
+                  <motion.tr
                     key={sub.id}
+                    variants={tableRowVariants}
                     onClick={() => navigate(`/creator/editor/${sub.id}`)}
-                    className="hover:bg-white/5 cursor-pointer transition-colors group"
+                    style={{ animationDelay: `${index * 50}ms` }}
+                    className="hover:bg-neutral-800/40 cursor-pointer transition-colors duration-200 group"
                   >
                     <td className="px-5 py-3.5">
-                      <div className="font-semibold text-white group-hover:text-primary transition-colors text-sm">
+                      <div className="font-semibold text-white group-hover:text-primary transition-colors duration-200 text-sm">
                         {sub.title}
                       </div>
                       <div className="text-[10px] uppercase font-mono text-muted mt-0.5">
@@ -194,7 +225,7 @@ export const Workspace: React.FC = () => {
                     </td>
                     <td className="px-5 py-3.5">
                       <span
-                        className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-mono font-semibold uppercase border ${getStatusBadge(
+                        className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-mono font-semibold uppercase border transition-all duration-200 ${getStatusBadge(
                           sub.status
                         )}`}
                       >
@@ -203,8 +234,9 @@ export const Workspace: React.FC = () => {
                     </td>
                     <td className="px-5 py-3.5">
                       {sub.open_findings_count > 0 ? (
-                        <span className="px-2 py-0.5 rounded bg-high/20 border border-high/40 text-high font-mono font-bold">
-                          {sub.open_findings_count} open
+                        <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-high/20 border border-high/40 text-high font-mono font-bold animate-[pulse_2.5s_cubic-bezier(0.4,0,0.6,1)_infinite]">
+                          <span className="w-1.5 h-1.5 rounded-full bg-high animate-ping" />
+                          <span>{sub.open_findings_count} open</span>
                         </span>
                       ) : (
                         <span className="flex items-center gap-1 text-success font-semibold">
@@ -217,13 +249,17 @@ export const Workspace: React.FC = () => {
                       v{sub.latest_version || 1}
                     </td>
                     <td className="px-5 py-3.5 text-right">
-                      <span className="inline-flex items-center gap-1 text-primary group-hover:translate-x-1 transition-transform font-semibold text-xs">
-                        Open Editor <ArrowRight size={13} />
+                      <span className="inline-flex items-center gap-1 text-primary font-semibold text-xs transition-colors">
+                        <span>Open Editor</span>
+                        <ArrowRight
+                          size={13}
+                          className="transition-transform duration-200 ease-out group-hover:translate-x-1.5"
+                        />
                       </span>
                     </td>
-                  </tr>
+                  </motion.tr>
                 ))}
-              </tbody>
+              </motion.tbody>
             </table>
           </div>
         )}
@@ -231,7 +267,7 @@ export const Workspace: React.FC = () => {
 
       {/* New Draft Modal */}
       {showNewModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 animate-in fade-in duration-200">
           <div className="w-full max-w-lg rounded-2xl bg-[#1D1D18] border border-line p-6 shadow-2xl text-ink frame-shimmer-border">
             <h3 className="text-base font-bold text-white font-display mb-4">Create New Draft</h3>
             <form onSubmit={handleCreateCustom} className="space-y-4 text-xs">
@@ -242,7 +278,7 @@ export const Workspace: React.FC = () => {
                   value={newTitle}
                   onChange={(e) => setNewTitle(e.target.value)}
                   placeholder="e.g. Lumora Desk Lamp Email Announcement"
-                  className="w-full p-2.5 bg-[#0E0E0B] border border-line rounded-lg text-white focus:outline-none focus:border-primary"
+                  className="w-full p-2.5 bg-[#0E0E0B] border border-line rounded-lg text-white focus:outline-none focus:border-primary focus:shadow-[0_0_12px_rgba(175,230,7,0.25)] transition-all duration-300"
                   required
                 />
               </div>
@@ -252,7 +288,7 @@ export const Workspace: React.FC = () => {
                 <select
                   value={newContentType}
                   onChange={(e) => setNewContentType(e.target.value)}
-                  className="w-full p-2.5 bg-[#0E0E0B] border border-line rounded-lg text-white focus:outline-none focus:border-primary"
+                  className="w-full p-2.5 bg-[#0E0E0B] border border-line rounded-lg text-white focus:outline-none focus:border-primary focus:shadow-[0_0_12px_rgba(175,230,7,0.25)] transition-all duration-300 cursor-pointer"
                 >
                   <option value="social" className="bg-[#1D1D18] text-white">Social Copy</option>
                   <option value="email" className="bg-[#1D1D18] text-white">Email Campaign</option>
@@ -268,7 +304,7 @@ export const Workspace: React.FC = () => {
                   onChange={(e) => setNewBody(e.target.value)}
                   rows={5}
                   placeholder="Enter or paste draft content here..."
-                  className="w-full p-2.5 bg-[#0E0E0B] border border-line rounded-lg text-white font-mono focus:outline-none focus:border-primary"
+                  className="w-full p-2.5 bg-[#0E0E0B] border border-line rounded-lg text-white font-mono focus:outline-none focus:border-primary focus:shadow-[0_0_12px_rgba(175,230,7,0.25)] transition-all duration-300"
                   required
                 />
               </div>
@@ -277,13 +313,13 @@ export const Workspace: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setShowNewModal(false)}
-                  className="px-3 py-1.5 rounded-lg bg-card hover:bg-white/10 border border-line text-muted hover:text-white"
+                  className="px-3 py-1.5 rounded-lg bg-card hover:bg-white/10 hover:-translate-y-0.5 active:scale-95 border border-line text-muted hover:text-white transition-all duration-200 cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-lg bg-primary text-black font-semibold text-xs hover:bg-primary/90"
+                  className="px-4 py-2 rounded-lg bg-primary text-black font-semibold text-xs hover:bg-primary/90 hover:-translate-y-0.5 active:scale-95 transition-all duration-200 shadow-[0_0_15px_rgba(175,230,7,0.25)] cursor-pointer"
                 >
                   Create & Audit
                 </button>
@@ -292,6 +328,6 @@ export const Workspace: React.FC = () => {
           </div>
         </div>
       )}
-    </motion.div>
+    </div>
   );
 };

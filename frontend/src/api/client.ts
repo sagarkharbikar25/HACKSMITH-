@@ -12,7 +12,11 @@ import type {
   AuditLogItem,
 } from "../types";
 
-const BASE_URL = import.meta.env.VITE_API_URL || "/api";
+const rawBaseUrl = (import.meta.env.VITE_API_URL || "/api").trim().replace(/\/+$/, "");
+const BASE_URL =
+  rawBaseUrl.startsWith("http") && !rawBaseUrl.endsWith("/api")
+    ? `${rawBaseUrl}/api`
+    : rawBaseUrl;
 
 export class ApiError extends Error {
   code: string;

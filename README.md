@@ -4,6 +4,8 @@
 [![CI](https://github.com/sagarkharbikar25/HACKSMITH-/actions/workflows/ci.yml/badge.svg)](https://github.com/sagarkharbikar25/HACKSMITH-/actions/workflows/ci.yml)
 **Round 2 Prototype Build** &bull; Team: Sagar Kharbikar + Ayush Roy
 
+📖 **Comprehensive AI Agent & Developer Handover Manual:** See [`AI_AGENT_README.md`](AI_AGENT_README.md) for the complete end-to-end technical manual, UI design tokens, color palette, progress audit vs plan, and backend engine specifications.
+
 ---
 
 ## 🚀 Quick Demo Personas (Zero-Typing Login)

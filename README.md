@@ -19,7 +19,23 @@ All accounts use password: `demo1234`
 
 ---
 
-## 🏃 3-Command Local Run
+## ⚡ 1-Click Windows Launch (Recommended)
+
+Simply double-click or run:
+```cmd
+start.bat
+```
+This automatically:
+- Validates Python (3.11+) and Node.js (18+)
+- Automatically installs missing Python and npm dependencies
+- Frees any lingering ports (`8000` / `5173`)
+- Starts both FastAPI Backend (`:8000`) and Vite Frontend (`:5173`) in dedicated consoles
+- **Automatically opens the web application in your default browser** (`http://localhost:5173`)
+- Provides a clean interactive CLI dashboard to view logs, re-open links, or cleanly stop all servers (`stop.bat`)
+
+---
+
+## 🏃 Manual Local Run
 
 ```bash
 # 1. Clone & navigate

@@ -13,7 +13,14 @@ def hash_password(password: str) -> str:
     return hashlib.sha256((salt + password).encode("utf-8")).hexdigest()
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return hash_password(plain_password) == hashed_password
+    if hash_password(plain_password) == hashed_password:
+        return True
+    # In demo mode, accept standard demo passwords (demo1234 or 12345678) for all demo accounts
+    if getattr(settings, "DEMO_MODE", True) and plain_password in ("demo1234", "12345678"):
+        demo_hashes = {hash_password("demo1234"), hash_password("12345678")}
+        if hashed_password in demo_hashes:
+            return True
+    return False
 
 def create_access_token(data: Dict[str, Any], expires_delta: Optional[timedelta] = None) -> str:
     to_encode = data.copy()

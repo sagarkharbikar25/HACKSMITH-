@@ -1,37 +1,50 @@
 [
   {
-    "id": 1,
     "email": "creator@lumora.demo",
     "name": "Elena Vance (Creator)",
     "role": "creator",
     "password_plain": "demo1234"
   },
   {
-    "id": 2,
     "email": "agency@lumora.demo",
     "name": "Nexus Agency (Agency)",
     "role": "agency",
     "password_plain": "demo1234"
   },
   {
-    "id": 3,
     "email": "reviewer@lumora.demo",
     "name": "Marcus Cole (Reviewer)",
     "role": "reviewer",
     "password_plain": "demo1234"
   },
   {
-    "id": 4,
     "email": "brand@lumora.demo",
     "name": "Sarah Chen (Brand Manager)",
     "role": "brand_manager",
     "password_plain": "demo1234"
   },
   {
-    "id": 5,
     "email": "admin@lumora.demo",
     "name": "System Administrator",
     "role": "admin",
     "password_plain": "demo1234"
+  },
+  {
+    "email": "saar@test.com",
+    "name": "Sagar (Creator)",
+    "role": "creator",
+    "password_plain": "12345678"
+  },
+  {
+    "email": "ss@test.com",
+    "name": "Reviewer (SS)",
+    "role": "reviewer",
+    "password_plain": "12345678"
+  },
+  {
+    "email": "sk@test.com",
+    "name": "Sagar Kharbikar (Brand Manager)",
+    "role": "brand_manager",
+    "password_plain": "12345678"
   }
 ]

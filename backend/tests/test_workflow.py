@@ -2,7 +2,26 @@
 Comprehensive end-to-end scenario test validating the complete Lumora workflow,
 gates, role-based security, versioning, reviewer approvals, and audit trail.
 """
-import pytest
+import sys
+import os
+
+# Ensure backend root is on sys.path for app imports
+backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if backend_dir not in sys.path:
+    sys.path.insert(0, backend_dir)
+
+try:
+    import pytest
+except ImportError:
+    # Graceful fallback when pytest is not installed in the active environment
+    class _DummyPytest:
+        @staticmethod
+        def fixture(*args, **kwargs):
+            def decorator(func):
+                return func
+            return decorator
+    pytest = _DummyPytest()
+
 from fastapi.testclient import TestClient
 from app.main import app
 from app.db import Base, engine, SessionLocal

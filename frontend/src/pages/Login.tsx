@@ -34,9 +34,12 @@ export const Login: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [showDemoDrawer, setShowDemoDrawer] = useState(true);
 
-  const handleSignIn = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!loginEmail.trim() || !loginPassword.trim()) {
+  const handleSignIn = async (e?: React.FormEvent, customEmail?: string, customPass?: string) => {
+    if (e) e.preventDefault();
+    const emailToUse = (customEmail || loginEmail).trim();
+    const passToUse = customPass || loginPassword;
+
+    if (!emailToUse || !passToUse.trim()) {
       setError("Please provide both email and password.");
       return;
     }
@@ -44,7 +47,7 @@ export const Login: React.FC = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const loggedUser = await login(loginEmail.trim(), loginPassword);
+      const loggedUser = await login(emailToUse, passToUse);
       navigate(getRoleHomeRoute(loggedUser.role), { replace: true });
     } catch (err: any) {
       setError(err.message || "Invalid credentials. Please verify your email and password.");
@@ -77,6 +80,7 @@ export const Login: React.FC = () => {
     setLoginEmail(email);
     setLoginPassword(pass);
     setError(null);
+    handleSignIn(undefined, email, pass);
   };
 
   return (

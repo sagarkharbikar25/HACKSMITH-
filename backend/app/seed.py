@@ -42,14 +42,16 @@ def seed_database(db: Session, force_reset: bool = False):
         for u in user_data:
             existing = db.query(User).filter(User.email == u["email"]).first()
             if not existing:
-                db_user = User(
-                    id=u.get("id"),
-                    email=u["email"],
-                    name=u["name"],
-                    role=u["role"],
-                    password_hash=hash_password(u.get("password_plain", "demo1234")),
-                    created_at=datetime.utcnow()
-                )
+                kwargs = {
+                    "email": u["email"],
+                    "name": u["name"],
+                    "role": u["role"],
+                    "password_hash": hash_password(u.get("password_plain", "demo1234")),
+                    "created_at": datetime.utcnow()
+                }
+                if "id" in u and not db.query(User).filter(User.id == u["id"]).first():
+                    kwargs["id"] = u["id"]
+                db_user = User(**kwargs)
                 db.add(db_user)
         db.commit()
 

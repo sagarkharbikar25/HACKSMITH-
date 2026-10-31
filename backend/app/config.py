@@ -1,5 +1,8 @@
 import os
-from pydantic_settings import BaseSettings
+try:
+    from pydantic_settings import BaseSettings
+except ImportError:
+    from pydantic import BaseModel as BaseSettings
 
 class Settings(BaseSettings):
     DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./brandguard.db")

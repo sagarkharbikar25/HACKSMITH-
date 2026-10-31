@@ -1,0 +1,130 @@
+/**
+ * styles/round3.css — Round 3 keyframes and utility classes
+ * Import this in main.tsx AFTER index.css.
+ * Respects prefers-reduced-motion: all new animations are disabled.
+ */
+
+/* ── Variables ───────────────────────────────────────────────────────────── */
+:root {
+  --bbox-pulse: 1.4s;
+}
+
+/* ── Bounding box draw animation (palette — solid stroke) ────────────────── */
+@keyframes bbox-draw {
+  from {
+    stroke-dashoffset: 1200;
+    opacity: 0.2;
+  }
+  to {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+
+.bbox rect {
+  stroke-dasharray: 1200;
+  animation: bbox-draw 0.6s ease-out both;
+}
+
+/* Dashed contrast boxes fade in instead of drawing */
+.bbox rect[stroke-dasharray="10 6"] {
+  animation: none;
+}
+
+/* Active bbox: thicker stroke + pulse */
+@keyframes bbox-pulse {
+  50% {
+    fill-opacity: 0.28;
+  }
+}
+
+.bbox--active rect {
+  stroke-width: 5;
+  animation: bbox-pulse var(--bbox-pulse) ease-in-out infinite;
+}
+
+/* ── Drawer slide-in ─────────────────────────────────────────────────────── */
+@keyframes slide-in-right {
+  from {
+    transform: translateX(24px);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+.drawer-enter {
+  animation: slide-in-right 0.22s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+/* ── Progress sheen (uploading/processing bars) ──────────────────────────── */
+@keyframes progress-sheen {
+  from {
+    background-position: -200% 0;
+  }
+  to {
+    background-position: 200% 0;
+  }
+}
+
+.progress-sheen {
+  background-image: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.25),
+    transparent
+  );
+  background-size: 200% 100%;
+  animation: progress-sheen 1.4s linear infinite;
+}
+
+/* ── Proposal list item exit animation ───────────────────────────────────── */
+@keyframes proposal-out {
+  to {
+    transform: translateX(-16px);
+    opacity: 0;
+    height: 0;
+    margin: 0;
+    padding: 0;
+  }
+}
+
+.proposal-leaving {
+  animation: proposal-out 0.25s ease-in forwards;
+}
+
+/* ── Dropzone drag-over glow (uses --ai-cyan token) ─────────────────────── */
+.dropzone--over {
+  box-shadow: 0 0 0 2px var(--ai-cyan, #00e5ff),
+    0 0 24px rgba(0, 229, 255, 0.25);
+}
+
+/* Dropzone idle: subtle dashed border */
+.dropzone--idle {
+  border: 1.5px dashed rgba(235, 241, 245, 0.25);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.dropzone--idle:hover {
+  border-color: rgba(235, 241, 245, 0.5);
+}
+
+/* ── Semantic finding: dotted underline in HighlightedDraft ─────────────── */
+.hl--semantic {
+  text-decoration-style: dotted;
+}
+
+/* ── Reduced motion: disable ALL new Round 3 animations ─────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .bbox rect,
+  .bbox--active rect,
+  .drawer-enter,
+  .progress-sheen,
+  .proposal-leaving,
+  .scan-line {
+    animation: none !important;
+    transition: none !important;
+  }
+}

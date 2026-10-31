@@ -14,7 +14,6 @@ export const ProposalListItem: React.FC<ProposalListItemProps> = ({
   isSelected,
   onSelect,
 }) => {
-  // Extract display title & excerpt preview from payload
   const isRule = proposal.proposal_type === "rule";
   const title =
     (proposal.payload?.message as string) ||
@@ -39,7 +38,7 @@ export const ProposalListItem: React.FC<ProposalListItemProps> = ({
       className={`p-3.5 rounded-xl border transition-all text-left cursor-pointer outline-none ${
         isSelected
           ? "bg-[#1D1D18] border-ai shadow-md ring-1 ring-ai/40"
-          : "bg-[#151511] border-white/5 hover:border-white/20 hover:bg-[#1A1A15]"
+          : "bg-[#151511] border-white/5 hover:border-white/20 hover:bg-[#1A1A14]"
       }`}
     >
       <div className="flex items-center justify-between gap-2 mb-1.5">
@@ -69,7 +68,7 @@ export const ProposalListItem: React.FC<ProposalListItemProps> = ({
           )}
         </div>
 
-        {/* Status indicator dot */}
+        {/* Status indicator dot & duplicate/conflict icons */}
         <div className="flex items-center gap-1.5 shrink-0">
           {proposal.duplicate_of && (
             <span title={`Duplicate of ${proposal.duplicate_of}`}>

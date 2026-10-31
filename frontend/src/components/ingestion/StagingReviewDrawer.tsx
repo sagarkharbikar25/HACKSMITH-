@@ -411,7 +411,7 @@ export const StagingReviewDrawer: React.FC<StagingReviewDrawerProps> = ({
                     key={proposal.id}
                     proposal={proposal}
                     isSelected={proposal.id === selectedId}
-                    onSelect={(p) => setSelectedId(p.id)}
+                    onSelect={(p: ProposalOut) => setSelectedId(p.id)}
                   />
                 ))
               )}

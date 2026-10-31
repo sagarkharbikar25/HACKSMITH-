@@ -2,7 +2,7 @@
  * api/assets.ts — Creative asset upload & visual finding endpoints (Round 3)
  */
 
-import { apiUpload, apiBlob, apiDelete } from "./client";
+import { apiUpload, apiBlob, apiDelete, ApiError } from "./client";
 import type { AssetOut, AssetFindingOut, ResolveAssetFindingIn } from "../types/round3";
 
 const BASE_URL = (import.meta.env.VITE_API_URL || "/api")
@@ -22,7 +22,6 @@ async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
     const data = await res.json().catch(() => ({}));
     const code = data?.error?.code ?? "UNKNOWN_ERROR";
     const message = data?.error?.message ?? res.statusText;
-    const { ApiError } = await import("./client");
     throw new ApiError(res.status, message, code, data?.error?.details);
   }
   return res.json() as Promise<T>;
@@ -63,3 +62,4 @@ export const resolveAssetFinding = (
     method: "PATCH",
     body: JSON.stringify(body),
   });
+

@@ -19,6 +19,8 @@ export interface EvidenceRef {
   kind: string;
   label: string;
   last_reviewed?: string | null;
+  source?: { citation?: string; excerpt?: string } | null;
+  source_citation?: string | null;
 }
 
 export interface Finding {
@@ -117,6 +119,7 @@ export interface Rule {
   tags: string[];
   status: string;
   last_reviewed?: string | null;
+  source_citation?: string | null;
 }
 
 export interface Fact {
@@ -131,6 +134,7 @@ export interface Fact {
   status: string;
   tags: string[];
   kind: string;
+  source_citation?: string | null;
 }
 
 export interface RuleInsight {

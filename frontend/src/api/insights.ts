@@ -3,6 +3,7 @@
  * Extends the existing insights.getSummary call in client.ts.
  */
 
+import { ApiError } from "./client";
 import type { GapSuggestionOut, AdoptWordingIn } from "../types/round3";
 import type { InsightsData } from "../types";
 
@@ -23,7 +24,6 @@ async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
     const data = await res.json().catch(() => ({}));
     const code = data?.error?.code ?? "UNKNOWN_ERROR";
     const message = data?.error?.message ?? res.statusText;
-    const { ApiError } = await import("./client");
     throw new ApiError(res.status, message, code, data?.error?.details);
   }
   return res.json() as Promise<T>;
@@ -64,3 +64,4 @@ export const undoGapSuggestion = (id: number): Promise<GapSuggestionOut> =>
   apiFetch<GapSuggestionOut>(`/insights/guideline-gaps/${id}/undo`, {
     method: "POST",
   });
+

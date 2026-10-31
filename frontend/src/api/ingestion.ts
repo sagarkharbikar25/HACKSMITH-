@@ -2,7 +2,7 @@
  * api/ingestion.ts — Knowledge document ingestion endpoints (Round 3)
  */
 
-import { apiUpload, apiDelete } from "./client";
+import { apiUpload, apiDelete, ApiError } from "./client";
 import type {
   DocumentOut,
   ProposalOut,
@@ -31,7 +31,6 @@ async function apiFetch<T>(
     const data = await res.json().catch(() => ({}));
     const code = data?.error?.code ?? "UNKNOWN_ERROR";
     const message = data?.error?.message ?? res.statusText;
-    const { ApiError } = await import("./client");
     throw new ApiError(res.status, message, code, data?.error?.details);
   }
   return res.json() as Promise<T>;
@@ -93,3 +92,4 @@ export const rejectProposal = (
     method: "POST",
     body: JSON.stringify(body),
   });
+

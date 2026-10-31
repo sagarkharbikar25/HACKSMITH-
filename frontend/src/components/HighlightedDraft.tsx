@@ -146,6 +146,7 @@ export const HighlightedDraft: React.FC<Props> = ({
             const underline = getSeverityUnderline(seg.finding.severity);
             const isFocused = seg.finding.id === focusedFindingId;
             const isResolved = seg.finding.resolution !== "open";
+            const isSemantic = seg.finding.match_type === "semantic";
 
             return (
               <mark
@@ -153,16 +154,18 @@ export const HighlightedDraft: React.FC<Props> = ({
                 onClick={() => onSelectFinding?.(seg.finding!.id)}
                 style={
                   {
-                    "--hl-bg": underline.bg,
+                    "--hl-bg": isSemantic ? "rgba(0, 229, 255, 0.18)" : underline.bg,
                     "--i": seg.findingIndex,
                     borderBottom: isResolved
                       ? "1px dashed var(--color-muted)"
-                      : `${underline.borderWidth} ${underline.borderStyle} ${underline.colorVar}`,
+                      : `${underline.borderWidth} ${isSemantic ? "dotted" : underline.borderStyle} ${
+                          isSemantic ? "var(--ai-cyan, #00e5ff)" : underline.colorVar
+                        }`,
                     padding: "1px 2px",
                     color: isResolved ? "var(--color-ink)" : "#FFFFFF",
                   } as React.CSSProperties
                 }
-                className={`hl-span ${
+                className={`hl-span ${isSemantic ? "hl--semantic" : ""} ${
                   isFocused ? "ring-2 ring-primary ring-offset-2 ring-offset-card" : ""
                 }`}
                 title={`[${seg.finding.severity.toUpperCase()}] ${seg.finding.explanation}`}

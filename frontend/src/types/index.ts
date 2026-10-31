@@ -34,9 +34,11 @@ export interface Finding {
   evidence: EvidenceRef;
   suggested_correction?: string | null;
   verification_status: "verified" | "unverified" | "flagged";
-  source_engine: "rules" | "llm" | "hybrid" | "gemini";
+  source_engine: "rules" | "llm" | "hybrid" | "gemini" | "semantic";
   resolution: "open" | "accepted" | "edited" | "dismissed";
   resolution_reason?: string | null;
+  match_type?: "exact" | "semantic";
+  similarity?: number | null;
 }
 
 export interface AuditSummary {

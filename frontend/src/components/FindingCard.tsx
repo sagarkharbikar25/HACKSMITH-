@@ -11,9 +11,11 @@ import {
   XCircle,
   Sparkles,
   Cpu,
+  BrainCircuit,
 } from "lucide-react";
 import { motion } from "motion/react";
 import type { Finding, EvidenceRef } from "../types";
+import { SemanticBadge } from "./SemanticBadge";
 
 interface Props {
   finding: Finding;
@@ -69,7 +71,8 @@ export const FindingCard: React.FC<Props> = ({
   const Icon = severityConfig.icon;
   const isResolved = finding.resolution !== "open";
   const isCritical = finding.severity === "critical";
-  const isGemini = finding.source_engine === "llm" || finding.source_engine === "gemini";
+  const isSemantic = finding.match_type === "semantic" || finding.source_engine === "semantic";
+  const isGemini = (finding.source_engine === "llm" || finding.source_engine === "gemini") && !isSemantic;
 
   const handleDismissSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -108,7 +111,15 @@ export const FindingCard: React.FC<Props> = ({
           </span>
 
           {/* Explicit AI Module Identification Chip */}
-          {isGemini ? (
+          {isSemantic ? (
+            <span
+              title="Finding generated via Semantic Vector Embeddings matching"
+              className="px-2.5 py-0.5 rounded-full bg-ai/10 border border-ai/40 text-ai text-[10px] font-mono font-semibold flex items-center gap-1.5 shadow-[0_0_12px_rgba(0,229,255,0.2)]"
+            >
+              <BrainCircuit size={11} className="text-ai animate-pulse" />
+              <span>Semantic Engine</span>
+            </span>
+          ) : isGemini ? (
             <span
               title="Finding generated and verified by Google Gemini Cloud LLM"
               className="px-2.5 py-0.5 rounded-full bg-gradient-to-r from-blue-500/20 via-indigo-500/20 to-purple-500/20 border border-blue-400/50 text-blue-300 text-[10px] font-mono font-semibold flex items-center gap-1.5 shadow-[0_0_12px_rgba(59,130,246,0.3)] animate-in fade-in"
@@ -124,6 +135,11 @@ export const FindingCard: React.FC<Props> = ({
               <Cpu size={11} className="text-primary" />
               <span>BrandGuard Module</span>
             </span>
+          )}
+
+          {/* Semantic Match Percentage Badge */}
+          {isSemantic && finding.similarity != null && (
+            <SemanticBadge similarity={finding.similarity} />
           )}
 
           <span className="text-xs font-mono text-muted uppercase">
@@ -156,6 +172,11 @@ export const FindingCard: React.FC<Props> = ({
 
       {/* Explanation */}
       <p className="mt-2.5 text-xs text-muted leading-relaxed font-sans">{finding.explanation}</p>
+      {isSemantic && (
+        <p className="text-[11px] text-ai/80 font-mono italic mt-1">
+          ↳ Found by meaning, not exact words.
+        </p>
+      )}
 
       {/* Suggested Fix with Engine-Specific Watermarking */}
       {finding.suggested_correction && !isResolved && (

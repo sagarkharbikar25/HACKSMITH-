@@ -29,7 +29,8 @@ export const RoleGuard: React.FC<RoleGuardProps> = ({
     return <Navigate to="/login" replace />;
   }
 
-  if (!allowedRoles.includes(user.role as Role)) {
+  const role = (user.role || "") as Role;
+  if (!allowedRoles.includes(role)) {
     const homeRoute = getRoleHomeRoute(user.role);
 
     return (
@@ -47,7 +48,7 @@ export const RoleGuard: React.FC<RoleGuardProps> = ({
               Module Access Restricted
             </h2>
             <p className="text-xs text-muted mt-2 font-sans leading-relaxed">
-              You are signed in as <span className="font-mono text-white font-semibold">{user.name}</span> (<span className="text-primary font-mono capitalize">{user.role}</span>).
+              You are signed in as <span className="font-mono text-white font-semibold">{user.name || user.email || "User"}</span> (<span className="text-primary font-mono capitalize">{user.role || "unknown"}</span>).
               Your role does not have authorization to access the <span className="text-white font-medium">{moduleName}</span>.
             </p>
           </div>

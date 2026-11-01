@@ -102,28 +102,48 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(() => {
-    const saved = sessionStorage.getItem("brandguard_user");
-    return saved ? JSON.parse(saved) : null;
+    try {
+      const saved = sessionStorage.getItem("brandguard_user");
+      if (!saved || saved === "undefined" || saved === "null") return null;
+      return JSON.parse(saved);
+    } catch {
+      return null;
+    }
   });
   const [token, setToken] = useState<string | null>(() => {
-    return sessionStorage.getItem("brandguard_token");
+    try {
+      const saved = sessionStorage.getItem("brandguard_token");
+      if (!saved || saved === "undefined" || saved === "null") return null;
+      return saved;
+    } catch {
+      return null;
+    }
   });
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
     async function initAuth() {
       const savedToken = sessionStorage.getItem("brandguard_token");
-      if (savedToken) {
+      if (savedToken && savedToken !== "undefined" && savedToken !== "null") {
         try {
           const me = await api.auth.me();
-          setUser(me);
-          sessionStorage.setItem("brandguard_user", JSON.stringify(me));
+          if (me && me.id) {
+            setUser(me);
+            sessionStorage.setItem("brandguard_user", JSON.stringify(me));
+          } else {
+            throw new Error("Invalid user profile");
+          }
         } catch {
           sessionStorage.removeItem("brandguard_token");
           sessionStorage.removeItem("brandguard_user");
           setToken(null);
           setUser(null);
         }
+      } else {
+        sessionStorage.removeItem("brandguard_token");
+        sessionStorage.removeItem("brandguard_user");
+        setToken(null);
+        setUser(null);
       }
       setIsLoading(false);
     }
@@ -136,6 +156,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     sessionStorage.setItem("brandguard_user", JSON.stringify(res.user));
     setToken(res.token);
     setUser(res.user);
+    setIsLoading(false);
     return res.user;
   };
 
@@ -145,6 +166,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     sessionStorage.setItem("brandguard_user", JSON.stringify(res.user));
     setToken(res.token);
     setUser(res.user);
+    setIsLoading(false);
     return res.user;
   };
 
@@ -158,6 +180,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     sessionStorage.removeItem("brandguard_user");
     setToken(null);
     setUser(null);
+    setIsLoading(false);
   };
 
   return (

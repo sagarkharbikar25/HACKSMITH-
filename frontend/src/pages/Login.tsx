@@ -104,10 +104,10 @@ export const Login: React.FC = () => {
         {/* Brand Header */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center mb-4">
-            <BrandSymbol size={56} className="shadow-[0_0_25px_rgba(175,230,7,0.35)]" />
+            <BrandSymbol size={56} />
           </div>
-          <h1 className="text-3xl sm:text-4xl font-extrabold font-display tracking-tight text-[#F4F6F0] uppercase leading-none">
-            BRANDGUARD <span className="text-primary">AI</span>
+          <h1 className="text-3xl sm:text-4xl font-extrabold font-display tracking-[-0.02em] text-[#F4F6F0] leading-none">
+            BrandGuard <span className="text-primary font-mono text-xl uppercase font-bold px-2 py-0.5 rounded bg-primary/15 border border-primary/30 ml-1.5 align-middle">AI</span>
           </h1>
           <p className="mt-2.5 text-xs text-muted max-w-xs mx-auto leading-relaxed">
             Enterprise automated brand guideline and factual compliance governance platform.

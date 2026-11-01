@@ -117,3 +117,4 @@ export const ImageCanvas: React.FC<ImageCanvasProps> = ({
     </div>
   );
 };
+

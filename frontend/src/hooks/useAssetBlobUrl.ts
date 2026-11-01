@@ -39,3 +39,4 @@ export function useAssetBlobUrl(assetId?: number): string | undefined {
 
   return url;
 }
+

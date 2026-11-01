@@ -190,3 +190,4 @@ export const AdoptWordingModal: React.FC<AdoptWordingModalProps> = ({
     </div>
   );
 };
+

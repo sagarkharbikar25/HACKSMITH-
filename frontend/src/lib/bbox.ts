@@ -43,3 +43,4 @@ export function bboxCenter(bbox: BBox): { cx: number; cy: number } {
 export function bboxArea(bbox: BBox): number {
   return bbox.w * bbox.h;
 }
+

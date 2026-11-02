@@ -157,8 +157,11 @@ def seed_demo_submissions(db: Session):
                 document_id=doc.id,
                 proposal_type="fact",
                 payload={
+                    "topic": "specifications",
+                    "subject": "battery_life",
                     "statement": "Lumora Smart Lamp provides up to 18 hours of continuous battery life on single charge.",
-                    "category": "specifications"
+                    "structured_value": {"max_hours": 18},
+                    "tags": ["specifications", "hardware"]
                 },
                 source_page=2,
                 source_section="Technical Specifications",
@@ -173,10 +176,13 @@ def seed_demo_submissions(db: Session):
                 proposal_type="rule",
                 payload={
                     "id": "WARRANTY-01",
+                    "type": "phrase",
+                    "pattern": {"phrases": ["warranty", "hardware coverage"]},
                     "name": "Warranty Reference Standards",
                     "severity": "medium",
-                    "category": "legal",
-                    "message": "Always state the 1-year limited warranty when referencing hardware coverage."
+                    "message": "Always state the 1-year limited warranty when referencing hardware coverage.",
+                    "suggestion": "Include '1-year limited hardware warranty' in product warranty copy.",
+                    "tags": ["legal", "warranty"]
                 },
                 source_page=3,
                 source_section="Warranty & Terms",

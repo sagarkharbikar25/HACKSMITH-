@@ -92,20 +92,53 @@ def create_rule(
     user: User = Depends(require_roles("brand_manager", "admin")),
     db: Session = Depends(get_db)
 ):
-    rule = Rule(
-        id=payload["id"],
-        type=payload["type"],
-        pattern=payload.get("pattern", {}),
-        severity=payload["severity"],
-        message=payload["message"],
-        suggestion=payload.get("suggestion"),
-        tags=payload.get("tags", []),
-        status="current",
-        last_reviewed=date.today()
-    )
-    db.add(rule)
+    rule_type = payload.get("type", "phrase")
+    rule_id = payload.get("id")
+    if not rule_id:
+        existing_count = db.query(Rule).count()
+        prefix = "RULE"
+        if rule_type == "claim":
+            prefix = "CLAIM"
+        elif rule_type == "term":
+            prefix = "TERM"
+        elif rule_type == "phrase":
+            prefix = "PHRASE"
+        elif rule_type == "tone":
+            prefix = "TONE"
+        rule_id = f"{prefix}-{existing_count + 1:02d}"
+
+    rule = db.query(Rule).filter(Rule.id == rule_id).first()
+    if rule:
+        rule.type = rule_type
+        rule.pattern = payload.get("pattern", {})
+        rule.severity = payload.get("severity", "medium")
+        rule.message = payload["message"]
+        rule.suggestion = payload.get("suggestion")
+        rule.tags = payload.get("tags", [])
+        rule.status = "current"
+        rule.last_reviewed = date.today()
+    else:
+        rule = Rule(
+            id=rule_id,
+            type=rule_type,
+            pattern=payload.get("pattern", {}),
+            severity=payload.get("severity", "medium"),
+            message=payload["message"],
+            suggestion=payload.get("suggestion"),
+            tags=payload.get("tags", []),
+            status="current",
+            last_reviewed=date.today()
+        )
+        db.add(rule)
+
     db.commit()
     db.refresh(rule)
+    try:
+        from ..services.knowledge_service import index_record
+        index_record(db, "rule", rule.id)
+    except Exception:
+        pass
+
     write_audit_log(db, actor_id=user.id, action="knowledge.create", object_type="rule", object_id=rule.id)
     return RuleOut.model_validate(rule)
 

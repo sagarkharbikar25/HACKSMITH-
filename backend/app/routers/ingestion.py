@@ -61,7 +61,7 @@ async def ingest_document(
 
         if not raw_bytes:
             raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                status_code=422,
                 detail={"error": {"code": "FILE_REQUIRED", "message": "A guideline document file (PDF/DOCX) is required.", "details": {}}}
             )
 

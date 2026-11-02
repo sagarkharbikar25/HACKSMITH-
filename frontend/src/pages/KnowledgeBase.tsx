@@ -7,7 +7,10 @@ import {
   ChevronDown,
   ChevronUp,
   Sparkles,
+  Plus,
+  CheckCircle2,
 } from "lucide-react";
+import { CreateRuleModal } from "../components/knowledge/CreateRuleModal";
 import { api } from "../api/client";
 import { useAuth } from "../auth/AuthContext";
 import { useRound3Flags } from "../hooks/useRound3Flags";
@@ -35,6 +38,8 @@ export const KnowledgeBase: React.FC = () => {
   const [isIngestionOpen, setIsIngestionOpen] = useState(true);
   const [documents, setDocuments] = useState<DocumentOut[]>([]);
   const [activeReviewDocId, setActiveReviewDocId] = useState<number | null>(null);
+  const [isCreateRuleOpen, setIsCreateRuleOpen] = useState(false);
+  const [toastMsg, setToastMsg] = useState<string | null>(null);
 
   // Ingestion enabled if flag is set, or default true for development
   const ingestionEnabled = flags.ingestion || true;
@@ -80,17 +85,17 @@ export const KnowledgeBase: React.FC = () => {
 
   const filteredRules = rules.filter(
     (r) =>
-      r.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      r.message.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      r.tags.some((t) => t.toLowerCase().includes(searchQuery.toLowerCase()))
+      (r.id || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (r.message || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (r.tags || []).some((t) => (t || '').toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
   const filteredFacts = facts.filter(
     (f) =>
-      f.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      f.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      f.statement.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      f.tags.some((t) => t.toLowerCase().includes(searchQuery.toLowerCase()))
+      (f.id || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (f.subject || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (f.statement || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (f.tags || []).some((t) => (t || '').toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
   return (
@@ -211,8 +216,8 @@ export const KnowledgeBase: React.FC = () => {
         </section>
       )}
 
-      {/* ── SEARCH BAR ────────────────────────────────────────────────── */}
-      <div className="flex items-center gap-3">
+      {/* ── SEARCH BAR & ACTIONS ────────────────────────────────────────── */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
         <div className="relative flex-1">
           <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted" />
           <input
@@ -223,6 +228,16 @@ export const KnowledgeBase: React.FC = () => {
             className="w-full pl-10 pr-4 py-2.5 bg-card border border-line rounded-xl text-xs text-white placeholder-muted/60 focus:outline-none focus:border-primary font-mono"
           />
         </div>
+
+        {isPrivileged && activeTab === "rules" && (
+          <button
+            onClick={() => setIsCreateRuleOpen(true)}
+            className="px-4 py-2.5 rounded-xl bg-primary hover:bg-primary/90 text-black font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-md shrink-0"
+          >
+            <Plus size={15} strokeWidth={2.5} />
+            <span>Create Custom Rule</span>
+          </button>
+        )}
       </div>
 
       {/* ── CONTENT GRID: RULES / FACTS ───────────────────────────────── */}
@@ -277,7 +292,7 @@ export const KnowledgeBase: React.FC = () => {
 
                 <div className="mt-4 pt-3 border-t border-line flex flex-wrap items-center justify-between gap-2 text-[10px] font-mono text-muted">
                   <div className="flex items-center gap-1">
-                    {rule.tags.map((t) => (
+                    {(rule.tags || []).map((t) => (
                       <span key={t} className="px-1.5 py-0.5 rounded bg-white/5">
                         #{t}
                       </span>
@@ -327,7 +342,7 @@ export const KnowledgeBase: React.FC = () => {
 
                 <div className="mt-4 pt-3 border-t border-line flex flex-wrap items-center justify-between gap-2 text-[10px] font-mono text-muted">
                   <div className="flex items-center gap-1">
-                    {fact.tags.map((t) => (
+                    {(fact.tags || []).map((t) => (
                       <span key={t} className="px-1.5 py-0.5 rounded bg-white/5">
                         #{t}
                       </span>
@@ -352,6 +367,26 @@ export const KnowledgeBase: React.FC = () => {
             loadData();
           }}
         />
+      )}
+
+      {/* ── CREATE CUSTOM RULE MODAL ──────────────────────────────────── */}
+      <CreateRuleModal
+        isOpen={isCreateRuleOpen}
+        onClose={() => setIsCreateRuleOpen(false)}
+        onRuleCreated={(newRule) => {
+          setRules((prev) => [newRule, ...prev]);
+          setToastMsg(`Published custom rule ${newRule.id} (${newRule.type}) successfully!`);
+          setTimeout(() => setToastMsg(null), 5000);
+          loadData();
+        }}
+      />
+
+      {/* ── TOAST NOTIFICATION ────────────────────────────────────────── */}
+      {toastMsg && (
+        <div className="fixed bottom-6 right-6 z-50 p-4 rounded-xl bg-success text-black font-semibold text-xs shadow-2xl flex items-center gap-2 animate-bounce">
+          <CheckCircle2 size={16} />
+          <span>{toastMsg}</span>
+        </div>
       )}
     </div>
   );

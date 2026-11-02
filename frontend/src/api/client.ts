@@ -257,6 +257,12 @@ export const api = {
     async getRule(id: string): Promise<Rule> {
       return request<Rule>(`/knowledge/rules/${id}`);
     },
+    async createRule(payload: Record<string, unknown>): Promise<Rule> {
+      return request<Rule>("/knowledge/rules", {
+        method: "POST",
+        body: JSON.stringify(payload),
+      });
+    },
     async getFacts(): Promise<Fact[]> {
       return request<Fact[]>("/knowledge/facts");
     },

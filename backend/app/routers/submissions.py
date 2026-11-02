@@ -151,7 +151,9 @@ def get_submission(
                     verification_status=f.verification_status,
                     source_engine=f.source_engine,
                     resolution=f.resolution,
-                    resolution_reason=f.resolution_reason
+                    resolution_reason=f.resolution_reason,
+                    similarity=getattr(f, 'similarity', None),
+                    match_type=getattr(f, 'match_type', 'exact')
                 )
             )
 

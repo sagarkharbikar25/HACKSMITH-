@@ -28,7 +28,22 @@ def validate_patterns(obj: RuleCreate) -> None:
 def create_rule(db: Session, obj: RuleCreate, actor: Optional[User] = None) -> Rule:
     """Creates a new rule, persists it, and triggers vector embedding indexing."""
     rule_id = obj.id
-    if not rule_id:
+    if rule_id:
+        existing_rule = db.query(Rule).filter(Rule.id == rule_id).first()
+        if existing_rule:
+            existing_rule.type = obj.type
+            existing_rule.pattern = obj.pattern
+            existing_rule.severity = obj.severity
+            existing_rule.message = obj.message
+            existing_rule.suggestion = obj.suggestion
+            existing_rule.tags = obj.tags
+            existing_rule.status = "current"
+            existing_rule.last_reviewed = date.today()
+            db.commit()
+            db.refresh(existing_rule)
+            index_record(db, "rule", existing_rule.id)
+            return existing_rule
+    else:
         existing_count = db.query(Rule).count()
         prefix = "RULE"
         if obj.type == "claim":
@@ -68,7 +83,23 @@ def create_rule(db: Session, obj: RuleCreate, actor: Optional[User] = None) -> R
 def create_fact(db: Session, obj: FactCreate, actor: Optional[User] = None) -> Fact:
     """Creates a new product fact, persists it, and triggers vector embedding indexing."""
     fact_id = obj.id
-    if not fact_id:
+    if fact_id:
+        existing_fact = db.query(Fact).filter(Fact.id == fact_id).first()
+        if existing_fact:
+            existing_fact.topic = obj.topic
+            existing_fact.subject = obj.subject
+            existing_fact.aliases = obj.aliases
+            existing_fact.statement = obj.statement
+            existing_fact.structured_value = obj.structured_value
+            existing_fact.status = obj.status
+            existing_fact.tags = obj.tags
+            existing_fact.kind = obj.kind
+            existing_fact.last_reviewed = date.today()
+            db.commit()
+            db.refresh(existing_fact)
+            index_record(db, "fact", existing_fact.id)
+            return existing_fact
+    else:
         existing_count = db.query(Fact).count()
         fact_id = f"AF-{existing_count + 1:03d}"
 

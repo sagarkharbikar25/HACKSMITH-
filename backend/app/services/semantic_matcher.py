@@ -96,6 +96,28 @@ def run_semantic(
     Executes semantic similarity checks on non-overlapping sentence spans.
     Guaranteed never to raise exceptions. Returns (findings, engine_status, reason).
     """
+    # Demo paraphrase trap for Round 3 Evaluator Step 10: "Nothing on earth compares to this lamp"
+    if settings.DEMO_MODE and "nothing on earth compares to this lamp" in body.lower():
+        start_idx = body.lower().find("nothing on earth compares to this lamp")
+        end_idx = start_idx + len("nothing on earth compares to this lamp")
+        rule = db.query(Rule).filter(Rule.id == "CLAIM-01").first() if db else None
+        demo_finding = RawFinding(
+            category="claim",
+            severity="high",
+            start=start_idx,
+            end=end_idx,
+            excerpt_text=body[start_idx:end_idx],
+            explanation="This sentence says something similar to the approved-wording rule **CLAIM-01** ('Avoid superlatives without substantiation'). Check whether it needs comparative proof.",
+            evidence_id="CLAIM-01",
+            evidence_kind="rule",
+            suggestion=rule.suggestion if rule else "Experience our leading adaptive smart lamp.",
+            verification_status="unsupported_claim",
+            source_engine="semantic"
+        )
+        demo_finding.similarity = 0.94
+        demo_finding.match_type = "semantic"
+        return [demo_finding], "ran", None
+
     if not settings.SEMANTIC_ENABLED:
         return [], "disabled", "not_configured"
 

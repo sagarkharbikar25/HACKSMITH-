@@ -1,36 +1,45 @@
 """
-BrandGuard AI - FastAPI Application Entry Point.
+BrandGuard AI - FastAPI Application Entry Point (Round 3 Enhanced).
 """
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, Request, HTTPException, status
+from fastapi import FastAPI, Request, HTTPException, status, Depends
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
+from sqlalchemy.orm import Session
 
 from .config import settings
-from .db import engine, Base, SessionLocal
+from .db import engine, Base, SessionLocal, ensure_pgvector, get_db
+from .db_migrate import run_migrations
 from .models import Submission
 from .seed import seed_database
 from .seed_demo_submissions import seed_demo_submissions
-from .routers import auth, submissions, findings, review, knowledge, insights, admin
+from .routers import auth, submissions, findings, review, knowledge, insights, admin, ingestion, assets
+from .middleware.rate_limit import RateLimitMiddleware
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # 1. Ensure tables exist
+    # 1. Ensure pgvector extension if PostgreSQL
+    ensure_pgvector()
+    # 2. Ensure tables exist
     Base.metadata.create_all(bind=engine)
-    # 2. Seed database idempotently on startup
+    # 3. Run additive column migrations idempotently
+    run_migrations(engine)
+    # 4. Seed database idempotently on startup
     db = SessionLocal()
     try:
         seed_database(db, force_reset=False)
         if db.query(Submission).count() == 0:
             seed_demo_submissions(db)
+        from .services.ingestion_service import recover_stale_ingestion_jobs
+        recover_stale_ingestion_jobs(db)
     finally:
         db.close()
     yield
 
 app = FastAPI(
     title="BrandGuard AI - Content Compliance & Governance API",
-    description="Automated brand guideline and factual consistency verification engine.",
+    description="Automated multi-modal brand guideline, visual compliance, and factual consistency verification engine.",
     version=settings.VERSION,
     lifespan=lifespan
 )
@@ -53,6 +62,9 @@ else:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
+# Sliding-Window Rate Limiting (5 requests per 10s per client IP / path)
+app.add_middleware(RateLimitMiddleware)
 
 # Standardized Error Handling
 @app.exception_handler(HTTPException)
@@ -93,12 +105,43 @@ async def generic_exception_handler(request: Request, exc: Exception):
 # Health Check (Both /health and /api/health)
 @app.get("/health")
 @app.get("/api/health")
-def health_check():
+def health_check(db: Session = Depends(get_db)):
+    from .models import Embedding
+    try:
+        emb_count = db.query(Embedding).count()
+    except Exception:
+        emb_count = 0
+
     return {
         "status": "ok",
         "db": "connected",
         "llm_enabled": settings.LLM_ENABLED,
-        "version": settings.VERSION
+        "version": settings.VERSION,
+        "round3": {
+            "ingestion": settings.INGESTION_ENABLED,
+            "vision": settings.VISION_ENABLED,
+            "semantic": settings.SEMANTIC_ENABLED,
+            "gap_analysis": settings.GAP_ANALYSIS_ENABLED,
+            "embeddings_indexed": emb_count
+        }
+    }
+
+# Round 3 Capabilities Manifest (used by Ayush useRound3Flags hook)
+@app.get("/health.round3")
+@app.get("/api/health.round3")
+def health_round3(db: Session = Depends(get_db)):
+    from .models import Embedding
+    try:
+        emb_count = db.query(Embedding).count()
+    except Exception:
+        emb_count = 0
+
+    return {
+        "ingestion": settings.INGESTION_ENABLED,
+        "vision": settings.VISION_ENABLED,
+        "semantic": settings.SEMANTIC_ENABLED,
+        "gap_analysis": settings.GAP_ANALYSIS_ENABLED,
+        "embeddings_indexed": emb_count
     }
 
 # Register Routers under /api
@@ -109,3 +152,5 @@ app.include_router(review.router, prefix="/api")
 app.include_router(knowledge.router, prefix="/api")
 app.include_router(insights.router, prefix="/api")
 app.include_router(admin.router, prefix="/api")
+app.include_router(ingestion.router, prefix="/api")
+app.include_router(assets.router, prefix="/api")

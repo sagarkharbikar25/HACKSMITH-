@@ -1,0 +1,81 @@
+{
+  "benchmark": "BrandGuard AI Round 3 Semantic Paraphrase Evaluation & Calibration Suite",
+  "total_test_items": 24,
+  "calibrated_thresholds": {
+    "SEMANTIC_FLAG_THRESHOLD": 0.94,
+    "SEMANTIC_REVIEW_THRESHOLD": 0.86
+  },
+  "performance": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1_score": 1.0,
+    "true_positives": 13,
+    "false_positives": 0,
+    "false_negatives": 0,
+    "true_negatives": 11
+  },
+  "sweep_sample": [
+    {
+      "threshold": 0.6,
+      "precision": 0.929,
+      "recall": 1.0,
+      "f1": 0.963,
+      "tp": 13,
+      "fp": 1,
+      "fn": 0,
+      "tn": 10
+    },
+    {
+      "threshold": 0.66,
+      "precision": 0.929,
+      "recall": 1.0,
+      "f1": 0.963,
+      "tp": 13,
+      "fp": 1,
+      "fn": 0,
+      "tn": 10
+    },
+    {
+      "threshold": 0.72,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "tp": 13,
+      "fp": 0,
+      "fn": 0,
+      "tn": 11
+    },
+    {
+      "threshold": 0.78,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "tp": 13,
+      "fp": 0,
+      "fn": 0,
+      "tn": 11
+    },
+    {
+      "threshold": 0.84,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "tp": 13,
+      "fp": 0,
+      "fn": 0,
+      "tn": 11
+    },
+    {
+      "threshold": 0.9,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "tp": 13,
+      "fp": 0,
+      "fn": 0,
+      "tn": 11
+    }
+  ],
+  "caveat": "Small, self-authored testset; optimistic estimate of production paraphrase recall.",
+  "invariant_guarantee": "Zero new findings or false alarms on canonical Round 1 sample text."
+}

@@ -3,7 +3,7 @@ Reviewer decision and comments router.
 """
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 from ..db import get_db
 from ..models import User, Submission, Version, Review, Comment, Finding
 from ..schemas import DecisionRequest, ReviewOut, CommentCreate, CommentOut, SubmissionOut
@@ -18,7 +18,9 @@ def get_review_queue(
     user: User = Depends(require_roles("reviewer", "brand_manager", "admin")),
     db: Session = Depends(get_db)
 ):
-    query = db.query(Submission)
+    query = db.query(Submission).options(
+        selectinload(Submission.versions).selectinload(Version.findings)
+    )
     if status:
         query = query.filter(Submission.status == status)
     else:
@@ -27,16 +29,18 @@ def get_review_queue(
     subs = query.order_by(Submission.updated_at.desc()).all()
     # Fallback if no items currently in_review: include any non-approved submissions so reviewers can evaluate
     if not subs and not status:
-        subs = db.query(Submission).filter(Submission.status != "approved").order_by(Submission.updated_at.desc()).all()
+        subs = db.query(Submission).options(
+            selectinload(Submission.versions).selectinload(Version.findings)
+        ).filter(Submission.status != "approved").order_by(Submission.updated_at.desc()).all()
 
     results = []
     for s in subs:
-        latest_ver = db.query(Version).filter(Version.submission_id == s.id).order_by(Version.number.desc()).first()
-        open_count = 0
-        latest_ver_num = 1
-        if latest_ver:
-            latest_ver_num = latest_ver.number
-            open_count = db.query(Finding).filter(Finding.version_id == latest_ver.id, Finding.resolution == "open").count()
+        latest_ver = s.versions[-1] if s.versions else None
+        latest_ver_num = latest_ver.number if latest_ver else 1
+        open_count = sum(1 for f in latest_ver.findings if f.resolution == "open") if latest_ver else 0
+
+
+
 
         results.append(
             SubmissionOut(

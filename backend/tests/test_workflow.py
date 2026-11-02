@@ -25,12 +25,14 @@ except ImportError:
 from fastapi.testclient import TestClient
 from app.main import app
 from app.db import Base, engine, SessionLocal
+from app.db_migrate import run_migrations
 from app.seed import seed_database
 
 @pytest.fixture(scope="module")
 def client():
     # Setup clean in-memory / test SQLite DB
     Base.metadata.create_all(bind=engine)
+    run_migrations(engine)
     db = SessionLocal()
     seed_database(db, force_reset=True)
     db.close()

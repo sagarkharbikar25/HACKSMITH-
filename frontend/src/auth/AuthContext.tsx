@@ -15,57 +15,22 @@ export const SYSTEM_CREDENTIALS: SystemCredential[] = [
     role: "creator",
     name: "Elena Vance",
     email: "creator@lumora.demo",
-    label: "Creator",
-    pass: "demo1234",
-  },
-  {
-    role: "agency",
-    name: "Nexus Agency",
-    email: "agency@lumora.demo",
-    label: "Agency",
+    label: "Creator Studio",
     pass: "demo1234",
   },
   {
     role: "reviewer",
     name: "Marcus Cole",
     email: "reviewer@lumora.demo",
-    label: "Reviewer",
+    label: "Review Terminal",
     pass: "demo1234",
   },
   {
     role: "brand_manager",
     name: "Sarah Chen",
     email: "brand@lumora.demo",
-    label: "Brand Manager",
+    label: "Governance Center",
     pass: "demo1234",
-  },
-  {
-    role: "admin",
-    name: "System Admin",
-    email: "admin@lumora.demo",
-    label: "Admin",
-    pass: "demo1234",
-  },
-  {
-    role: "creator",
-    name: "Creator (Sagar)",
-    email: "saar@test.com",
-    label: "Creator Test",
-    pass: "12345678",
-  },
-  {
-    role: "reviewer",
-    name: "Reviewer (SS)",
-    email: "ss@test.com",
-    label: "Reviewer Test",
-    pass: "12345678",
-  },
-  {
-    role: "brand_manager",
-    name: "Brand Manager (SK)",
-    email: "sk@test.com",
-    label: "Brand Mgr Test",
-    pass: "12345678",
   },
 ];
 
@@ -80,9 +45,8 @@ export function getRoleHomeRoute(role?: string): string {
     case "reviewer":
       return "/reviewer/queue";
     case "brand_manager":
-      return "/governance/insights";
     case "admin":
-      return "/governance/audit-trail";
+      return "/governance/insights";
     default:
       return "/creator/workspace";
   }
@@ -130,7 +94,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     initAuth();
   }, []);
 
-  const login = async (email: string, password: string = "12345678"): Promise<User> => {
+  const login = async (email: string, password: string = "demo1234"): Promise<User> => {
     const res = await api.auth.login(email, password);
     sessionStorage.setItem("brandguard_token", res.token);
     sessionStorage.setItem("brandguard_user", JSON.stringify(res.user));
@@ -150,7 +114,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const quickLogin = async (email: string): Promise<User> => {
     const cred = SYSTEM_CREDENTIALS.find((c) => c.email.toLowerCase() === email.toLowerCase());
-    return login(email, cred ? cred.pass : "12345678");
+    return login(email, cred ? cred.pass : "demo1234");
   };
 
   const logout = () => {

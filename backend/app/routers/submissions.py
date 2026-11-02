@@ -6,9 +6,9 @@ import os
 import difflib
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 from ..db import get_db
-from ..models import User, Submission, Version, Finding, Rule, Fact
+from ..models import User, Submission, Version, Finding, Rule, Fact, CreativeAsset
 from ..schemas import (
     SubmissionCreate, SubmissionOut, SubmissionDetailOut,
     VersionCreate, VersionOut, AuditResultOut, FindingOut, Excerpt, EvidenceRef
@@ -16,6 +16,7 @@ from ..schemas import (
 from ..deps import get_current_user, require_roles
 from ..services.workflow import write_audit_log, validate_submission_gate
 from ..services.audit_orchestrator import run_audit
+from ..services.asset_service import serialize_asset
 from ..seed import get_seed_path
 
 router = APIRouter(tags=["submissions"])
@@ -35,7 +36,9 @@ def list_submissions(
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    query = db.query(Submission)
+    query = db.query(Submission).options(
+        selectinload(Submission.versions).selectinload(Version.findings)
+    )
     # Role scoping: creator and agency can ONLY see their own submissions
     if user.role in ("creator", "agency") or mine:
         query = query.filter(Submission.author_id == user.id)
@@ -46,10 +49,10 @@ def list_submissions(
     subs = query.order_by(Submission.updated_at.desc()).all()
     results = []
     for s in subs:
-        latest_ver = db.query(Version).filter(Version.submission_id == s.id).order_by(Version.number.desc()).first()
-        open_count = 0
-        if latest_ver:
-            open_count = db.query(Finding).filter(Finding.version_id == latest_ver.id, Finding.resolution == "open").count()
+        latest_ver = s.versions[-1] if s.versions else None
+        open_count = sum(1 for f in latest_ver.findings if f.resolution == "open") if latest_ver else 0
+
+
 
         results.append(
             SubmissionOut(
@@ -105,7 +108,12 @@ def get_submission(
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    sub = db.query(Submission).filter(Submission.id == id).first()
+    sub = db.query(Submission).options(
+        selectinload(Submission.versions).selectinload(Version.findings),
+        selectinload(Submission.reviews),
+        selectinload(Submission.comments),
+        selectinload(Submission.creative_assets).selectinload(CreativeAsset.findings)
+    ).filter(Submission.id == id).first()
     if not sub:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -119,10 +127,10 @@ def get_submission(
             detail={"error": {"code": "FORBIDDEN", "message": "You can only view your own drafts", "details": {}}}
         )
 
-    latest_ver = db.query(Version).filter(Version.submission_id == sub.id).order_by(Version.number.desc()).first()
+    latest_ver = sub.versions[-1] if sub.versions else None
     latest_findings = []
     if latest_ver:
-        db_findings = db.query(Finding).filter(Finding.version_id == latest_ver.id).order_by(Finding.start).all()
+        db_findings = latest_ver.findings
         for f in db_findings:
             latest_findings.append(
                 FindingOut(
@@ -158,7 +166,8 @@ def get_submission(
         versions=[VersionOut.model_validate(v) for v in sub.versions],
         latest_findings=latest_findings,
         reviews=[r for r in sub.reviews],
-        comments=[c for c in sub.comments]
+        comments=[c for c in sub.comments],
+        assets=[serialize_asset(a) for a in (sub.creative_assets or []) if a.active]
     )
 
 @router.post("/submissions/{id}/audit", response_model=AuditResultOut)
@@ -167,14 +176,19 @@ def audit_submission(
     user: User = Depends(require_roles("creator", "agency", "reviewer", "brand_manager", "admin")),
     db: Session = Depends(get_db)
 ):
-    sub = db.query(Submission).filter(Submission.id == id).first()
+    sub = db.query(Submission).options(
+        selectinload(Submission.versions).selectinload(Version.findings),
+        selectinload(Submission.reviews),
+        selectinload(Submission.comments),
+        selectinload(Submission.creative_assets).selectinload(CreativeAsset.findings)
+    ).filter(Submission.id == id).first()
     if not sub:
         raise HTTPException(status_code=404, detail={"error": {"code": "NOT_FOUND", "message": "Submission not found", "details": {}}})
 
     if user.role in ("creator", "agency") and sub.author_id != user.id:
         raise HTTPException(status_code=403, detail={"error": {"code": "FORBIDDEN", "message": "Not owner", "details": {}}})
 
-    latest_ver = db.query(Version).filter(Version.submission_id == sub.id).order_by(Version.number.desc()).first()
+    latest_ver = sub.versions[-1] if sub.versions else None
     if not latest_ver:
         raise HTTPException(status_code=400, detail={"error": {"code": "NO_VERSIONS", "message": "No versions exist to audit", "details": {}}})
 
@@ -188,7 +202,12 @@ def create_version(
     user: User = Depends(require_roles("creator", "agency")),
     db: Session = Depends(get_db)
 ):
-    sub = db.query(Submission).filter(Submission.id == id).first()
+    sub = db.query(Submission).options(
+        selectinload(Submission.versions).selectinload(Version.findings),
+        selectinload(Submission.reviews),
+        selectinload(Submission.comments),
+        selectinload(Submission.creative_assets).selectinload(CreativeAsset.findings)
+    ).filter(Submission.id == id).first()
     if not sub:
         raise HTTPException(status_code=404, detail={"error": {"code": "NOT_FOUND", "message": "Submission not found", "details": {}}})
 
@@ -231,7 +250,12 @@ def submit_for_review(
     user: User = Depends(require_roles("creator", "agency")),
     db: Session = Depends(get_db)
 ):
-    sub = db.query(Submission).filter(Submission.id == id).first()
+    sub = db.query(Submission).options(
+        selectinload(Submission.versions).selectinload(Version.findings),
+        selectinload(Submission.reviews),
+        selectinload(Submission.comments),
+        selectinload(Submission.creative_assets).selectinload(CreativeAsset.findings)
+    ).filter(Submission.id == id).first()
     if not sub:
         raise HTTPException(status_code=404, detail={"error": {"code": "NOT_FOUND", "message": "Submission not found", "details": {}}})
 
@@ -241,7 +265,7 @@ def submit_for_review(
     if sub.status == "approved":
         raise HTTPException(status_code=409, detail={"error": {"code": "SUBMISSION_LOCKED", "message": "Already approved", "details": {}}})
 
-    latest_ver = db.query(Version).filter(Version.submission_id == sub.id).order_by(Version.number.desc()).first()
+    latest_ver = sub.versions[-1] if sub.versions else None
     if not latest_ver:
         raise HTTPException(status_code=400, detail={"error": {"code": "NO_VERSIONS", "message": "No version to submit", "details": {}}})
 
@@ -262,7 +286,12 @@ def get_submission_diff(
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    sub = db.query(Submission).filter(Submission.id == id).first()
+    sub = db.query(Submission).options(
+        selectinload(Submission.versions).selectinload(Version.findings),
+        selectinload(Submission.reviews),
+        selectinload(Submission.comments),
+        selectinload(Submission.creative_assets).selectinload(CreativeAsset.findings)
+    ).filter(Submission.id == id).first()
     if not sub:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

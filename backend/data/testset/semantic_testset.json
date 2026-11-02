@@ -1,0 +1,29 @@
+[
+  {"id": "TRUE-01", "text": "Nothing on earth compares to the brilliance of this lamp.", "expected_flag": true, "expected_rule": "CLAIM-01"},
+  {"id": "TRUE-02", "text": "Our smart lighting system is truly second to none in quality.", "expected_flag": true, "expected_rule": "CLAIM-01"},
+  {"id": "TRUE-03", "text": "This product delivers unmatched performance and finest craftsmanship.", "expected_flag": true, "expected_rule": "CLAIM-01"},
+  {"id": "TRUE-04", "text": "Rated number one across every independent consumer review.", "expected_flag": true, "expected_rule": "CLAIM-01"},
+  {"id": "TRUE-05", "text": "Unquestionably the greatest illumination tool in existence today.", "expected_flag": true, "expected_rule": "CLAIM-01"},
+  {"id": "TRUE-06", "text": "An incomparable smart lamp that easily surpasses all competition.", "expected_flag": true, "expected_rule": "CLAIM-01"},
+  {"id": "TRUE-07", "text": "Recognized as the finest ambient illumination hardware globally.", "expected_flag": true, "expected_rule": "CLAIM-01"},
+  {"id": "TRUE-08", "text": "Nothing compares to the revolutionary adaptive temperature control.", "expected_flag": true, "expected_rule": "CLAIM-01"},
+  {"id": "TRUE-09", "text": "Superior technology making it the world's finest desk companion.", "expected_flag": true, "expected_rule": "CLAIM-01"},
+  {"id": "TRUE-10", "text": "It stands unmatched as the premier smart home device of the decade.", "expected_flag": true, "expected_rule": "CLAIM-01"},
+
+  {"id": "BENIGN-01", "text": "Our engineering department strictly follows industry best practices.", "expected_flag": false, "expected_rule": null},
+  {"id": "BENIGN-02", "text": "Our customer support team always tries their best to help every user.", "expected_flag": false, "expected_rule": null},
+  {"id": "BENIGN-03", "text": "Constructed with durable aluminum alloy designed for everyday desk use.", "expected_flag": false, "expected_rule": null},
+  {"id": "BENIGN-04", "text": "The packaging is recyclable and meets international transport standards.", "expected_flag": false, "expected_rule": null},
+  {"id": "BENIGN-05", "text": "Includes an ergonomic power toggle and customizable night-light timers.", "expected_flag": false, "expected_rule": null},
+  {"id": "BENIGN-06", "text": "Certified for energy efficiency and low heat emission under typical room temperatures.", "expected_flag": false, "expected_rule": null},
+  {"id": "BENIGN-07", "text": "We recommend placing the lamp 30 centimeters away from your workstation monitor.", "expected_flag": false, "expected_rule": null},
+  {"id": "BENIGN-08", "text": "Firmware updates are automatically installed when connected to your home Wi-Fi network.", "expected_flag": false, "expected_rule": null},
+
+  {"id": "MIXED-01", "text": "While our team follows best practices, our customer satisfaction is high.", "expected_flag": false, "expected_rule": null},
+  {"id": "MIXED-02", "text": "A standard desktop lamp that illuminates your keyboard during late night shifts.", "expected_flag": false, "expected_rule": null},
+  {"id": "MIXED-03", "text": "Unmatched in brightness, yet completely compliant with domestic power outlets.", "expected_flag": true, "expected_rule": "CLAIM-01"},
+  {"id": "MIXED-04", "text": "Second to none in endurance, lasting through thousands of operating cycles.", "expected_flag": true, "expected_rule": "CLAIM-01"},
+  {"id": "MIXED-05", "text": "Offers soft warm light suitable for relaxing evenings with family.", "expected_flag": false, "expected_rule": null},
+  {"id": "MIXED-06", "text": "Nothing on earth compares to this revolutionary illumination gadget.", "expected_flag": true, "expected_rule": "CLAIM-01"}
+]
+

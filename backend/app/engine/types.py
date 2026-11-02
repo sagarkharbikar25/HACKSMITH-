@@ -13,7 +13,9 @@ class RawFinding:
     evidence_kind: str  # "rule" | "fact"
     suggestion: Optional[str]
     verification_status: str  # "confirmed_contradiction" | "unsupported_claim" | "style_issue" | "needs_human_verification"
-    source_engine: str  # "rules" | "llm"
+    source_engine: str  # "rules" | "llm" | "semantic" | "vision"
+    similarity: Optional[float] = None
+    match_type: str = "exact"  # "exact" | "semantic"
 
 @dataclass
 class ContextPack:

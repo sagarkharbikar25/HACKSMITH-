@@ -1,20 +1,24 @@
 """
-Idempotent database seeding on application boot.
+Database seeder for users, rules, facts, visual rules, and initial demo data.
 """
 import os
 import json
-from datetime import date, datetime
-from sqlalchemy import text
+from datetime import datetime, date
 from sqlalchemy.orm import Session
-from .models import User, Rule, Fact, Submission, Version, Finding
+
+from .models import (
+    User, Rule, Fact, Asset, Submission, Version, Finding,
+    Review, Comment, AuditLog,
+    Embedding, CreativeAsset, AssetFinding, GuidelineDocument,
+    PendingGuidelineProposal, RuleWordingSuggestion
+)
 from .security import hash_password
 
 def get_seed_path(filename: str) -> str:
-    # Look in data/seed/ relative to project root or local directory
     candidates = [
         os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "data", "seed", filename),
-        os.path.join(os.path.dirname(__file__), "..", "..", "data", "seed", filename),
-        os.path.join("data", "seed", filename)
+        os.path.join(os.getcwd(), "data", "seed", filename),
+        os.path.join(os.getcwd(), "backend", "data", "seed", filename)
     ]
     for p in candidates:
         if os.path.exists(p):
@@ -24,14 +28,28 @@ def get_seed_path(filename: str) -> str:
 def seed_database(db: Session, force_reset: bool = False):
     """
     Seeds initial users, rules, facts, and sample submissions idempotently.
+    Cleans up dependent tables in strict leaf-to-root foreign key order on force_reset.
     """
     if force_reset:
+        # Child visual findings and creative assets
+        db.query(AssetFinding).delete()
+        db.query(CreativeAsset).delete()
+        # Knowledge ingestion & proposals
+        db.query(PendingGuidelineProposal).delete()
+        db.query(GuidelineDocument).delete()
+        db.query(RuleWordingSuggestion).delete()
+        db.query(Embedding).delete()
+        # Reviews and comments MUST be deleted before versions and submissions
+        db.query(Review).delete()
+        db.query(Comment).delete()
         db.query(Finding).delete()
         db.query(Version).delete()
         db.query(Submission).delete()
+        db.query(AuditLog).delete()
+        # Rules, facts, assets
         db.query(Rule).delete()
         db.query(Fact).delete()
-        db.query(User).delete()
+        db.query(Asset).delete()
         db.commit()
 
     # 1. Seed Users
@@ -62,8 +80,8 @@ def seed_database(db: Session, force_reset: bool = False):
             rules_data = json.load(f)
         for r in rules_data:
             existing = db.query(Rule).filter(Rule.id == r["id"]).first()
-            l_rev = date.fromisoformat(r["last_reviewed"]) if r.get("last_reviewed") else date.today()
             if not existing:
+                l_rev = date.fromisoformat(r["last_reviewed"]) if "last_reviewed" in r and r["last_reviewed"] else date.today()
                 db_rule = Rule(
                     id=r["id"],
                     type=r["type"],
@@ -76,13 +94,28 @@ def seed_database(db: Session, force_reset: bool = False):
                     last_reviewed=l_rev
                 )
                 db.add(db_rule)
-            else:
-                existing.pattern = r["pattern"]
-                existing.severity = r["severity"]
-                existing.message = r["message"]
-                existing.suggestion = r.get("suggestion")
-                existing.tags = r.get("tags", [])
-                existing.status = r.get("status", "current")
+        db.commit()
+
+    # 2b. Seed Visual Rules (Round 3)
+    vis_file = get_seed_path("visual_rules.json")
+    if os.path.exists(vis_file):
+        with open(vis_file, "r", encoding="utf-8") as f:
+            vis_data = json.load(f)
+        for r in vis_data:
+            existing = db.query(Rule).filter(Rule.id == r["id"]).first()
+            if not existing:
+                db_rule = Rule(
+                    id=r["id"],
+                    type=r["type"],
+                    pattern=r["pattern"],
+                    severity=r["severity"],
+                    message=r["message"],
+                    suggestion=r.get("suggestion"),
+                    tags=r.get("tags", []),
+                    status="current",
+                    last_reviewed=date.today()
+                )
+                db.add(db_rule)
         db.commit()
 
     # 3. Seed Facts
@@ -90,45 +123,23 @@ def seed_database(db: Session, force_reset: bool = False):
     if os.path.exists(facts_file):
         with open(facts_file, "r", encoding="utf-8") as f:
             facts_data = json.load(f)
-        for fc in facts_data:
-            existing = db.query(Fact).filter(Fact.id == fc["id"]).first()
-            l_rev = date.fromisoformat(fc["last_reviewed"]) if fc.get("last_reviewed") else date.today()
-            v_from = date.fromisoformat(fc["valid_from"]) if fc.get("valid_from") else date.today()
+        for fa in facts_data:
+            existing = db.query(Fact).filter(Fact.id == fa["id"]).first()
             if not existing:
+                v_from = date.fromisoformat(fa["valid_from"]) if "valid_from" in fa and fa["valid_from"] else date.today()
+                l_rev = date.fromisoformat(fa["last_reviewed"]) if "last_reviewed" in fa and fa["last_reviewed"] else date.today()
                 db_fact = Fact(
-                    id=fc["id"],
-                    topic=fc["topic"],
-                    subject=fc["subject"],
-                    aliases=fc.get("aliases", []),
-                    statement=fc["statement"],
-                    structured_value=fc.get("structured_value", {}),
+                    id=fa["id"],
+                    topic=fa["topic"],
+                    subject=fa["subject"],
+                    aliases=fa.get("aliases", []),
+                    statement=fa["statement"],
+                    structured_value=fa.get("structured_value", {}),
                     valid_from=v_from,
                     last_reviewed=l_rev,
-                    status=fc.get("status", "current"),
-                    tags=fc.get("tags", []),
-                    kind=fc.get("kind", "fact")
+                    status=fa.get("status", "current"),
+                    tags=fa.get("tags", []),
+                    kind=fa.get("kind", "fact")
                 )
                 db.add(db_fact)
-            else:
-                existing.statement = fc["statement"]
-                existing.structured_value = fc.get("structured_value", {})
-                existing.status = fc.get("status", "current")
-                existing.tags = fc.get("tags", [])
-                existing.kind = fc.get("kind", "fact")
         db.commit()
-
-    # 4. Resync PostgreSQL auto-increment sequences to prevent duplicate key errors on new inserts
-    sync_postgres_sequences(db)
-
-def sync_postgres_sequences(db: Session):
-    """
-    Resets Postgres sequences to match the maximum ID in tables seeded with explicit IDs.
-    Prevents duplicate key errors on subsequent INSERTs.
-    """
-    tables = ["users", "submissions", "versions", "findings", "reviews", "comments", "audit_logs"]
-    for table in tables:
-        try:
-            db.execute(text(f"SELECT setval(pg_get_serial_sequence('{table}', 'id'), COALESCE((SELECT MAX(id) FROM {table}), 1));"))
-            db.commit()
-        except Exception:
-            db.rollback()

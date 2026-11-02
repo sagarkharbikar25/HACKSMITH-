@@ -1,0 +1,35 @@
+[
+  {
+    "id": "VIS-01",
+    "type": "palette",
+    "title": "Approved colour palette",
+    "severity": "medium",
+    "message": "Dominant image colours must be close to the approved Lumora palette.",
+    "suggestion": "Swap off-palette colours for the nearest approved colour.",
+    "pattern": {
+      "colors": [
+        {"name": "Lumora Amber", "hex": "#F2A93B", "role": "primary"},
+        {"name": "Midnight Navy", "hex": "#14213D", "role": "secondary"},
+        {"name": "Warm White", "hex": "#FAF7F2", "role": "neutral"},
+        {"name": "Soft Teal", "hex": "#2A9D8F", "role": "accent"}
+      ],
+      "max_delta_e": 25,
+      "min_share": 0.06,
+      "allow_neutrals": true
+    },
+    "tags": ["visual", "palette"]
+  },
+  {
+    "id": "ACC-01",
+    "type": "contrast",
+    "title": "Text contrast (WCAG AA)",
+    "severity": "high",
+    "message": "Text over images needs a contrast ratio of at least 4.5:1.",
+    "suggestion": "Use a darker or lighter text colour, or add a solid backing.",
+    "pattern": {
+      "min_ratio": 4.5
+    },
+    "tags": ["accessibility", "contrast"]
+  }
+]
+

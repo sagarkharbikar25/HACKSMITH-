@@ -19,6 +19,8 @@ export interface EvidenceRef {
   kind: string;
   label: string;
   last_reviewed?: string | null;
+  source?: { citation?: string; excerpt?: string } | null;
+  source_citation?: string | null;
 }
 
 export interface Finding {
@@ -32,9 +34,11 @@ export interface Finding {
   evidence: EvidenceRef;
   suggested_correction?: string | null;
   verification_status: "verified" | "unverified" | "flagged";
-  source_engine: "rules" | "llm" | "hybrid" | "gemini";
+  source_engine: "rules" | "llm" | "hybrid" | "gemini" | "semantic";
   resolution: "open" | "accepted" | "edited" | "dismissed";
   resolution_reason?: string | null;
+  match_type?: "exact" | "semantic";
+  similarity?: number | null;
 }
 
 export interface AuditSummary {
@@ -117,6 +121,7 @@ export interface Rule {
   tags: string[];
   status: string;
   last_reviewed?: string | null;
+  source_citation?: string | null;
 }
 
 export interface Fact {
@@ -131,6 +136,7 @@ export interface Fact {
   status: string;
   tags: string[];
   kind: string;
+  source_citation?: string | null;
 }
 
 export interface RuleInsight {

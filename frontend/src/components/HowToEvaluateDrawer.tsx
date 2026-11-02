@@ -1,5 +1,5 @@
-import React from "react";
-import { X, ArrowRight, Copy, Check } from "lucide-react";
+import React, { useState } from "react";
+import { X, ArrowRight, Copy, Check, BrainCircuit } from "lucide-react";
 
 interface Props {
   isOpen: boolean;
@@ -10,15 +10,24 @@ export const SAMPLE_DRAFT_TEXT = `Meet the Lumora Smart Lamp: the best adaptive 
 
 export const CLEAN_DRAFT_TEXT = `Meet the Lumora Smart Lamp: a leading adaptive ambient lamp. Engineered with responsibly sourced recyclable aluminum and available now across the US. Transform your desk with circadian-sync lighting.`;
 
+export const DEMO_PARAPHRASE_TEXT = `Nothing on earth compares to this lamp. Engineered for modern homes.`;
+
 export const HowToEvaluateDrawer: React.FC<Props> = ({ isOpen, onClose }) => {
-  const [copied, setCopied] = React.useState(false);
+  const [copiedSample, setCopiedSample] = useState(false);
+  const [copiedParaphrase, setCopiedParaphrase] = useState(false);
 
   if (!isOpen) return null;
 
   const copySample = () => {
     navigator.clipboard.writeText(SAMPLE_DRAFT_TEXT);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    setCopiedSample(true);
+    setTimeout(() => setCopiedSample(false), 2000);
+  };
+
+  const copyParaphrase = () => {
+    navigator.clipboard.writeText(DEMO_PARAPHRASE_TEXT);
+    setCopiedParaphrase(true);
+    setTimeout(() => setCopiedParaphrase(false), 2000);
   };
 
   const steps = [
@@ -69,6 +78,30 @@ export const HowToEvaluateDrawer: React.FC<Props> = ({ isOpen, onClose }) => {
       desc: "Submit approval comments. Then visit the Audit Log to see the full, tamper-evident cryptographic and event log of all actions taken.",
       badge: "Governance & Audit Trail",
     },
+    {
+      step: 8,
+      title: "Round 3: Ingest Brand Guidelines",
+      desc: "Sign in as Brand Manager (sk@test.com / 12345678). Go to Rules (/governance/rules) and drop a guideline PDF/Word doc. Watch the 4-step progress rail extract candidate rules and review proposals with verbatim page citations.",
+      badge: "Improvement 1 · Ingestion",
+    },
+    {
+      step: 9,
+      title: "Round 3: Check Creative Visuals & Contrast",
+      desc: "As Creator (saar@test.com), open a draft and click the 'Creative Assets' tab. Upload banner images to detect palette drift (ΔE) and WCAG AA 4.5:1 text contrast violations with SVG bounding boxes.",
+      badge: "Improvement 2 · Vision & Contrast",
+    },
+    {
+      step: 10,
+      title: "Round 3: Catch a Semantic Paraphrase",
+      desc: "Copy the demo paraphrase below into the editor. Hit Save & Recheck. Observe how the Semantic Vector Engine catches the meaning-based violation with a 'Semantic Match: 94%' badge and dotted underline.",
+      badge: "Improvement 2 · Vector Semantic Engine",
+    },
+    {
+      step: 11,
+      title: "Round 3: Self-Healing Guidelines (Gap Suggestions)",
+      desc: "As Brand Manager (sk@test.com), visit /governance/insights. The system clusters frequently disputed rules and proposes clearer wording with explicit exceptions. Adopt with 1 click or undo.",
+      badge: "Improvement 3 · Guideline Gaps",
+    },
   ];
 
   return (
@@ -91,21 +124,42 @@ export const HowToEvaluateDrawer: React.FC<Props> = ({ isOpen, onClose }) => {
             </button>
           </div>
 
-          <div className="mt-4 p-4 rounded-xl bg-card border border-line">
-            <div className="flex items-center justify-between mb-2">
+          {/* Sample Copy 1: Round 1 & 2 */}
+          <div className="mt-4 p-4 rounded-xl bg-card border border-line space-y-2">
+            <div className="flex items-center justify-between">
               <span className="text-xs font-semibold uppercase tracking-wider text-primary">
-                Lumora Sample Copy
+                Demo Sample Copy (3 Deterministic Traps)
               </span>
               <button
                 onClick={copySample}
                 className="flex items-center gap-1.5 text-xs text-muted hover:text-white transition-colors"
               >
-                {copied ? <Check size={14} className="text-success" /> : <Copy size={14} />}
-                {copied ? "Copied!" : "Copy Text"}
+                {copiedSample ? <Check size={14} className="text-success" /> : <Copy size={14} />}
+                {copiedSample ? "Copied!" : "Copy Text"}
               </button>
             </div>
-            <p className="text-sm font-mono text-muted bg-[#0E0E0B] p-3 rounded-lg border border-line select-all">
+            <p className="text-xs font-mono text-muted bg-[#0E0E0B] p-2.5 rounded-lg border border-line select-all">
               {SAMPLE_DRAFT_TEXT}
+            </p>
+          </div>
+
+          {/* Sample Copy 2: Round 3 Semantic Paraphrase */}
+          <div className="mt-3 p-4 rounded-xl bg-card border border-ai/30 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold uppercase tracking-wider text-ai flex items-center gap-1">
+                <BrainCircuit size={13} />
+                Round 3 Demo Paraphrase (Semantic Trap)
+              </span>
+              <button
+                onClick={copyParaphrase}
+                className="flex items-center gap-1.5 text-xs text-ai hover:text-white transition-colors"
+              >
+                {copiedParaphrase ? <Check size={14} className="text-success" /> : <Copy size={14} />}
+                {copiedParaphrase ? "Copied!" : "Copy Paraphrase"}
+              </button>
+            </div>
+            <p className="text-xs font-mono text-white bg-[#0E0E0B] p-2.5 rounded-lg border border-white/10 select-all">
+              {DEMO_PARAPHRASE_TEXT}
             </p>
           </div>
 
@@ -145,7 +199,7 @@ export const HowToEvaluateDrawer: React.FC<Props> = ({ isOpen, onClose }) => {
 
         <div className="mt-6 pt-4 border-t border-line flex items-center justify-between">
           <p className="text-xs text-muted">
-            All 7 evaluation steps run live against Supabase PostgreSQL.
+            All 11 evaluation workflows run live against backend engines.
           </p>
           <button
             onClick={onClose}

@@ -108,6 +108,22 @@ export const EvidenceDrawer: React.FC<Props> = ({ evidence, onClose }) => {
                 </span>
               </div>
 
+              {/* Source Document Citation Chip (Round 3) */}
+              {(evidence.source?.citation ||
+                evidence.source_citation ||
+                data?.rule?.source_citation ||
+                data?.fact?.source_citation) && (
+                <div className="mt-2.5 p-2.5 rounded-xl bg-[#151511] border border-ai/30 flex items-center gap-2 text-xs font-mono">
+                  <span className="text-ai font-bold">Source Citation:</span>
+                  <span className="text-white truncate">
+                    {evidence.source?.citation ||
+                      evidence.source_citation ||
+                      data?.rule?.source_citation ||
+                      data?.fact?.source_citation}
+                  </span>
+                </div>
+              )}
+
               {/* Content Body */}
               <div className="mt-4 space-y-4">
                 {loading && (

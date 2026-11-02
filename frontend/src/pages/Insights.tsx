@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import {
   AlertTriangle,
@@ -9,16 +9,45 @@ import {
   ArrowRight,
   History,
   TrendingUp,
+  Sparkles,
+  RotateCcw,
 } from "lucide-react";
 import { api } from "../api/client";
+import { useAuth } from "../auth/AuthContext";
+import {
+  listGapSuggestions,
+  generateGapSuggestions,
+  adoptGapSuggestion,
+  dismissGapSuggestion,
+  undoGapSuggestion,
+} from "../api/insights";
+import { mockGapSuggestions } from "../api/mocks/round3";
+import { GapSuggestionsCard } from "../components/insights/GapSuggestionsCard";
 import type { InsightsData, Submission, AuditLogItem } from "../types";
+import type { GapSuggestionOut, RuleWording } from "../types/round3";
 
 export const Insights: React.FC = () => {
+  const { user } = useAuth();
+  const isReviewer = user?.role === "reviewer";
+
   const [data, setData] = useState<InsightsData | null>(null);
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [auditLogs, setAuditLogs] = useState<AuditLogItem[]>([]);
+  const [gapSuggestions, setGapSuggestions] = useState<GapSuggestionOut[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isGeneratingGaps, setIsGeneratingGaps] = useState(false);
+  const [focusedRuleId, setFocusedRuleId] = useState<string | null>(null);
+  const [undoToast, setUndoToast] = useState<{ id: number; ruleId: string } | null>(null);
   const [activeTab, setActiveTab] = useState<"rules" | "submissions" | "audit">("rules");
+
+  const loadGapSuggestions = useCallback(async () => {
+    try {
+      const suggestions = await listGapSuggestions();
+      setGapSuggestions(suggestions);
+    } catch {
+      setGapSuggestions(mockGapSuggestions);
+    }
+  }, []);
 
   const fetchAllData = async () => {
     setIsLoading(true);
@@ -41,6 +70,7 @@ export const Insights: React.FC = () => {
       setData(insightsRes);
       setSubmissions(submissionsRes);
       setAuditLogs(auditRes);
+      await loadGapSuggestions();
     } catch (err) {
       console.error("Failed to load Brand Governance Center:", err);
     } finally {
@@ -51,6 +81,52 @@ export const Insights: React.FC = () => {
   useEffect(() => {
     fetchAllData();
   }, []);
+
+  const handleGenerateGaps = async () => {
+    setIsGeneratingGaps(true);
+    try {
+      const generated = await generateGapSuggestions().catch(() => mockGapSuggestions);
+      setGapSuggestions(generated);
+    } finally {
+      setIsGeneratingGaps(false);
+    }
+  };
+
+  const handleAdoptGap = async (suggestionId: number, proposedWording?: RuleWording) => {
+    const target = gapSuggestions.find((g) => g.id === suggestionId);
+    try {
+      await adoptGapSuggestion(suggestionId, { proposed_wording: proposedWording }).catch(() => {});
+    } finally {
+      setGapSuggestions((prev) =>
+        prev.map((g) => (g.id === suggestionId ? { ...g, status: "adopted" as const } : g))
+      );
+      if (target) {
+        setUndoToast({ id: suggestionId, ruleId: target.rule_id });
+        setTimeout(() => setUndoToast(null), 10000);
+      }
+    }
+  };
+
+  const handleDismissGap = async (suggestionId: number) => {
+    try {
+      await dismissGapSuggestion(suggestionId).catch(() => {});
+    } finally {
+      setGapSuggestions((prev) =>
+        prev.map((g) => (g.id === suggestionId ? { ...g, status: "dismissed" as const } : g))
+      );
+    }
+  };
+
+  const handleUndoGap = async (suggestionId: number) => {
+    try {
+      await undoGapSuggestion(suggestionId).catch(() => {});
+    } finally {
+      setGapSuggestions((prev) =>
+        prev.map((g) => (g.id === suggestionId ? { ...g, status: "pending" as const } : g))
+      );
+      setUndoToast(null);
+    }
+  };
 
   const totalFired = data?.rules ? data.rules.reduce((acc, r) => acc + (r.fired || 0), 0) : 0;
   const totalDismissed = data?.rules ? data.rules.reduce((acc, r) => acc + (r.dismissed || 0), 0) : 0;
@@ -179,6 +255,35 @@ export const Insights: React.FC = () => {
             </div>
           </div>
 
+          {/* Undo Toast Notification (10 seconds) */}
+          {undoToast && (
+            <div className="p-3.5 bg-success/15 border border-success/30 rounded-xl text-success text-xs font-mono flex items-center justify-between animate-fadeIn shadow-md">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 size={16} />
+                <span>Rule {undoToast.ruleId} updated with improved wording.</span>
+              </div>
+              <button
+                onClick={() => handleUndoGap(undoToast.id)}
+                className="px-2.5 py-1 rounded-md bg-white/10 hover:bg-white/20 text-white font-bold flex items-center gap-1 transition-colors"
+              >
+                <RotateCcw size={12} />
+                <span>Undo</span>
+              </button>
+            </div>
+          )}
+
+          {/* Section 7: Guideline Gap Suggestions (Round 3 Improvement 3) */}
+          <GapSuggestionsCard
+            suggestions={gapSuggestions}
+            onAdopt={handleAdoptGap}
+            onDismiss={handleDismissGap}
+            onUndo={handleUndoGap}
+            onGenerate={handleGenerateGaps}
+            isGenerating={isGeneratingGaps}
+            isReadOnly={isReviewer}
+            focusedRuleId={focusedRuleId}
+          />
+
           {/* Navigation Tab Filters */}
           <div className="flex items-center gap-2 border-b border-line pb-2">
             <button
@@ -240,6 +345,9 @@ export const Insights: React.FC = () => {
                     {data?.rules.map((rule) => {
                       const ratePercent = Math.round(rule.dismissal_rate * 100);
                       const isHighRate = ratePercent > 35;
+                      const pendingGap = gapSuggestions.find(
+                        (g) => g.rule_id === rule.evidence_id && g.status === "pending"
+                      );
                       return (
                         <tr key={rule.evidence_id} className="hover:bg-white/5 transition-colors">
                           <td className="px-5 py-4">
@@ -264,17 +372,36 @@ export const Insights: React.FC = () => {
                             </div>
                           </td>
                           <td className="px-5 py-4">
-                            {rule.flag ? (
-                              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-high/20 border border-high/40 text-high font-mono text-[10px] font-bold">
-                                <AlertTriangle size={12} />
-                                <span>{rule.flag}</span>
-                              </span>
-                            ) : (
-                              <span className="inline-flex items-center gap-1 text-success text-[11px] font-mono">
-                                <CheckCircle2 size={12} />
-                                <span>Calibrated</span>
-                              </span>
-                            )}
+                            <div className="flex items-center gap-2">
+                              {rule.flag ? (
+                                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-high/20 border border-high/40 text-high font-mono text-[10px] font-bold">
+                                  <AlertTriangle size={12} />
+                                  <span>{rule.flag}</span>
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 text-success text-[11px] font-mono">
+                                  <CheckCircle2 size={12} />
+                                  <span>Calibrated</span>
+                                </span>
+                              )}
+
+                              {pendingGap && (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setFocusedRuleId(rule.evidence_id);
+                                    document
+                                      .getElementById("guideline-gap-suggestions")
+                                      ?.scrollIntoView({ behavior: "smooth" });
+                                  }}
+                                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-ai/15 hover:bg-ai/25 border border-ai/30 text-ai font-mono text-[10px] font-bold transition-colors cursor-pointer"
+                                  title="Click to view and adopt AI improved wording"
+                                >
+                                  <Sparkles size={10} />
+                                  <span>Suggestion available →</span>
+                                </button>
+                              )}
+                            </div>
                           </td>
                         </tr>
                       );

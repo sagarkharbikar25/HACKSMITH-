@@ -14,16 +14,20 @@ import {
   ShieldCheck,
   Cpu,
   Sparkles,
+  FileText,
+  Image as ImageIcon,
 } from "lucide-react";
 import { motion } from "motion/react";
 import { api, ApiError } from "../api/client";
 import { useAuth } from "../auth/AuthContext";
 import type { SubmissionDetail, Finding, EvidenceRef } from "../types";
+import type { AssetOut } from "../types/round3";
 import { HighlightedDraft } from "../components/HighlightedDraft";
 import { FindingCard } from "../components/FindingCard";
 import { EngineStatusBar } from "../components/EngineStatusBar";
 import { EvidenceDrawer } from "../components/EvidenceDrawer";
 import { DecisionModal } from "../components/DecisionModal";
+import { AssetUploadTab } from "../components/visual/AssetUploadTab";
 import { replaceByCodePoints } from "../lib/codepoints";
 import { CLEAN_DRAFT_TEXT } from "../components/HowToEvaluateDrawer";
 
@@ -32,6 +36,12 @@ export const SubmissionDetailView: React.FC = () => {
   const location = useLocation();
   const { user } = useAuth();
   const submissionId = Number(id);
+
+  // Tab navigation state: '#assets' in URL hash persists tab across reloads
+  const [activeTab, setActiveTab] = useState<"copy" | "assets">(
+    window.location.hash === "#assets" ? "assets" : "copy"
+  );
+  const [assets, setAssets] = useState<AssetOut[]>([]);
 
   // Check if active context is reviewer module
   const isReviewer = user?.role === "reviewer" || location.pathname.startsWith("/reviewer");
@@ -283,12 +293,50 @@ export const SubmissionDetailView: React.FC = () => {
   const activeFindings = submission.latest_findings || [];
   const openFindingsCount = activeFindings.filter((f) => f.resolution === "open").length;
 
+  // Round 3 Gate: open blocking findings from both text AND creative assets
+  const openTextBlocking = activeFindings.filter(
+    (f) => f.resolution === "open" && (f.severity === "critical" || f.severity === "high")
+  );
+  const openAssetBlocking = assets
+    .flatMap((a) => (a.active ? a.findings : []))
+    .filter(
+      (f) => f.resolution === "open" && (f.severity === "critical" || f.severity === "high")
+    );
+
+  const totalBlockingCount = openTextBlocking.length + openAssetBlocking.length;
+  const openVisualHighCount = openAssetBlocking.length;
+
+  const blockingIssues = [
+    ...openTextBlocking.map((f) => ({
+      id: f.issue_id,
+      tab: "copy" as const,
+      findingId: f.id,
+      label: `${f.issue_id} (${f.category})`,
+    })),
+    ...openAssetBlocking.map((f) => ({
+      id: f.issue_id,
+      tab: "assets" as const,
+      findingId: f.id,
+      label: `${f.issue_id} (${f.check_type})`,
+    })),
+  ];
+
   const summary = {
-    critical: activeFindings.filter((f) => f.resolution === "open" && f.severity === "critical").length,
-    high: activeFindings.filter((f) => f.resolution === "open" && f.severity === "high").length,
-    medium: activeFindings.filter((f) => f.resolution === "open" && f.severity === "medium").length,
-    low: activeFindings.filter((f) => f.resolution === "open" && f.severity === "low").length,
-    total: openFindingsCount,
+    critical:
+      activeFindings.filter((f) => f.resolution === "open" && f.severity === "critical").length +
+      assets.flatMap((a) => (a.active ? a.findings : [])).filter((f) => f.resolution === "open" && f.severity === "critical").length,
+    high:
+      activeFindings.filter((f) => f.resolution === "open" && f.severity === "high").length +
+      assets.flatMap((a) => (a.active ? a.findings : [])).filter((f) => f.resolution === "open" && f.severity === "high").length,
+    medium:
+      activeFindings.filter((f) => f.resolution === "open" && f.severity === "medium").length +
+      assets.flatMap((a) => (a.active ? a.findings : [])).filter((f) => f.resolution === "open" && f.severity === "medium").length,
+    low:
+      activeFindings.filter((f) => f.resolution === "open" && f.severity === "low").length +
+      assets.flatMap((a) => (a.active ? a.findings : [])).filter((f) => f.resolution === "open" && f.severity === "low").length,
+    total:
+      openFindingsCount +
+      assets.flatMap((a) => (a.active ? a.findings : [])).filter((f) => f.resolution === "open").length,
   };
 
   return (
@@ -362,12 +410,17 @@ export const SubmissionDetailView: React.FC = () => {
             submission.status !== "approved" && (
               <button
                 onClick={handleSubmitForReview}
-                disabled={isSubmittingReview || submission.status === "in_review"}
+                disabled={isSubmittingReview || submission.status === "in_review" || totalBlockingCount > 0}
+                title={
+                  totalBlockingCount > 0
+                    ? `${totalBlockingCount} critical or high issues must be resolved before submission`
+                    : "Submit draft and creative assets for review"
+                }
                 className={`px-4 py-2 rounded-xl font-semibold text-xs flex items-center gap-2 transition-all ${
-                  openFindingsCount > 0
-                    ? "bg-white/10 border border-line text-muted hover:text-white"
+                  totalBlockingCount > 0
+                    ? "bg-white/10 border border-line text-muted cursor-not-allowed opacity-60"
                     : "bg-primary text-black hover:bg-primary/90 shadow-[0_0_15px_rgba(175,230,7,0.3)]"
-                } disabled:opacity-50`}
+                }`}
               >
                 <Send size={14} />
                 <span>
@@ -424,8 +477,96 @@ export const SubmissionDetailView: React.FC = () => {
         </div>
       )}
 
-      {/* Main 2-Column Split Workspace */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      {/* ── ROUND 3 WORKSPACE TABS: [ COPY ] [ CREATIVE ASSETS (N) ] ── */}
+      <div className="flex items-center gap-2 p-1 bg-card rounded-xl border border-line w-fit">
+        <button
+          type="button"
+          onClick={() => {
+            setActiveTab("copy");
+            window.location.hash = "copy";
+          }}
+          className={`px-4 py-2 rounded-lg font-mono text-xs font-semibold flex items-center gap-2 transition-all ${
+            activeTab === "copy"
+              ? "bg-primary text-black shadow-sm font-bold"
+              : "text-muted hover:text-white"
+          }`}
+        >
+          <FileText size={14} />
+          <span>Copy & Draft</span>
+          {openFindingsCount > 0 && (
+            <span className="px-1.5 py-0.2 rounded bg-black/20 text-[10px]">
+              {openFindingsCount}
+            </span>
+          )}
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            setActiveTab("assets");
+            window.location.hash = "assets";
+          }}
+          className={`px-4 py-2 rounded-lg font-mono text-xs font-semibold flex items-center gap-2 transition-all ${
+            activeTab === "assets"
+              ? "bg-ai text-black shadow-sm font-bold"
+              : "text-muted hover:text-white"
+          }`}
+        >
+          <ImageIcon size={14} />
+          <span>Creative Assets ({assets.length})</span>
+          {openVisualHighCount > 0 && (
+            <span className="px-1.5 py-0.2 rounded bg-high/20 text-high text-[10px] font-bold flex items-center gap-0.5">
+              <AlertTriangle size={10} />
+              <span>{openVisualHighCount} open</span>
+            </span>
+          )}
+        </button>
+      </div>
+
+      {/* ── GATE BLOCKING BANNER ────────────────────────────────────────── */}
+      {totalBlockingCount > 0 && submission.status !== "in_review" && (
+        <div className="p-3.5 rounded-xl bg-high/10 border border-high/30 text-xs font-mono text-high flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+          <div className="flex items-center gap-2">
+            <AlertTriangle size={15} className="shrink-0 text-high" />
+            <span>
+              {totalBlockingCount} open issue{totalBlockingCount > 1 ? "s" : ""} must be fixed before submission:
+            </span>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-1.5">
+            {blockingIssues.map((issue, idx) => (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => {
+                  setActiveTab(issue.tab);
+                  window.location.hash = issue.tab;
+                  setFocusedFindingId(issue.findingId);
+                }}
+                className="px-2 py-0.5 rounded-md bg-high/20 hover:bg-high/30 border border-high/40 text-[10px] font-bold text-high transition-colors"
+                title={`Jump to ${issue.label}`}
+              >
+                {issue.label} →
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {activeTab === "assets" ? (
+        /* ── CREATIVE ASSETS WORKSPACE (ROUND 3 IMPROVEMENT 2) ─────────── */
+        <AssetUploadTab
+          submissionId={submissionId}
+          status={submission.status}
+          isReadOnly={isReviewer}
+          onSelectEvidence={(evId) =>
+            setSelectedEvidence({ id: evId, kind: "rule", label: "Visual Rule" })
+          }
+          onAssetsChanged={(newAssets) => setAssets(newAssets)}
+        />
+      ) : (
+        /* Main 2-Column Split Workspace */
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left Column: Draft Editor & Code-Point Highlighter (7 Cols) */}
         <div className="lg:col-span-7 space-y-4">
           <div className="flex items-center justify-between">
@@ -669,6 +810,7 @@ export const SubmissionDetailView: React.FC = () => {
           )}
         </div>
       </div>
+      )}
 
       {/* Slide-in Evidence Inspector Drawer */}
       <EvidenceDrawer

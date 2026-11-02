@@ -1,24 +1,33 @@
 import React from "react";
-import { CheckCircle2, Cpu, Sparkles } from "lucide-react";
+import { CheckCircle2, Cpu, Sparkles, BrainCircuit } from "lucide-react";
 import type { AuditEngines, AuditSummary } from "../types";
 
 interface Props {
-  engines?: AuditEngines;
+  engines?: AuditEngines & {
+    semantic?: "ran" | "disabled" | "unavailable";
+    semantic_reason?: string | null;
+  };
   summary?: AuditSummary;
   isScanning?: boolean;
 }
 
 export const EngineStatusBar: React.FC<Props> = ({
-  engines = { rules: "ran", llm: "disabled", llm_reason: "deterministic rule engine active" },
+  engines = {
+    rules: "ran",
+    llm: "disabled",
+    llm_reason: "deterministic rule engine active",
+    semantic: "ran",
+  },
   summary = { critical: 0, high: 0, medium: 0, low: 0, total: 0 },
   isScanning = false,
 }) => {
   const isClean = summary.total === 0;
+  const semanticState = engines.semantic || "ran";
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl bg-card border border-line text-xs">
       {/* Engine Run Status */}
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center gap-2 sm:gap-3">
         <div className="flex items-center gap-1.5">
           <span className="relative flex h-2 w-2">
             <span
@@ -40,8 +49,31 @@ export const EngineStatusBar: React.FC<Props> = ({
         {/* BrandGuard Engine Pill */}
         <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-white/5 border border-line font-mono text-[11px] text-muted">
           <Cpu size={12} className="text-primary" />
-          <span>BrandGuard Module:</span>
+          <span>Rules Engine:</span>
           <span className="text-success font-semibold">Active</span>
+        </div>
+
+        {/* Semantic Vector Engine Pill (Round 3) */}
+        <div
+          className={`flex items-center gap-1.5 px-2.5 py-1 rounded border font-mono text-[11px] ${
+            semanticState === "ran"
+              ? "bg-ai/10 border-ai/30 text-ai"
+              : "bg-white/5 border-line text-muted"
+          }`}
+          title={
+            semanticState === "unavailable"
+              ? "Meaning-based matching didn't run. Exact-rule results are complete."
+              : "Vector semantic similarity matching"
+          }
+        >
+          <BrainCircuit size={12} className={semanticState === "ran" ? "text-ai" : "text-muted"} />
+          <span className="font-semibold">Semantic:</span>
+          <span className={semanticState === "ran" ? "text-ai font-bold" : "text-muted"}>
+            {semanticState === "ran" ? "Ran" : semanticState}
+          </span>
+          {engines.semantic_reason && (
+            <span className="text-[10px] text-muted/70">({engines.semantic_reason})</span>
+          )}
         </div>
 
         {/* Google Gemini Pill */}

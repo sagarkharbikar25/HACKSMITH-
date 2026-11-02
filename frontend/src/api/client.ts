@@ -77,6 +77,74 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
   return data as T;
 }
 
+// ── Round 3 helpers ──────────────────────────────────────────────────────────
+
+/** Build auth headers — adds Bearer token; only adds Content-Type for JSON requests */
+function authHeaders(json: boolean): Record<string, string> {
+  const token = sessionStorage.getItem("brandguard_token");
+  const headers: Record<string, string> = {};
+  if (token) headers["Authorization"] = `Bearer ${token}`;
+  if (json) headers["Content-Type"] = "application/json";
+  return headers;
+}
+
+/** Convert a failed response into an ApiError (shared by apiUpload + apiBlob) */
+async function toApiError(res: Response): Promise<ApiError> {
+  const isJson = res.headers.get("content-type")?.includes("application/json");
+  const data = isJson ? await res.json() : await res.text();
+  let message = res.statusText;
+  let code = "UNKNOWN_ERROR";
+  let details: any = null;
+  if (data && typeof data === "object") {
+    if (data.error) {
+      code = data.error.code || code;
+      message = data.error.message || message;
+      details = data.error.details;
+    } else if (data.detail) {
+      message = typeof data.detail === "string" ? data.detail : message;
+      details = typeof data.detail !== "string" ? data.detail : null;
+    }
+  }
+  return new ApiError(res.status, message, code, details);
+}
+
+/**
+ * Multipart upload — DO NOT set Content-Type (browser adds the boundary automatically).
+ * Returns the parsed JSON response body.
+ */
+export async function apiUpload<T>(path: string, form: FormData): Promise<T> {
+  const res = await fetch(`${BASE_URL}${path}`, {
+    method: "POST",
+    headers: authHeaders(false),
+    body: form,
+  });
+  if (!res.ok) throw await toApiError(res);
+  return res.json() as Promise<T>;
+}
+
+/**
+ * Authenticated binary fetch — returns a Blob (e.g. for image assets behind auth).
+ * Use useAssetBlobUrl hook to convert to an object URL.
+ */
+export async function apiBlob(path: string): Promise<Blob> {
+  const res = await fetch(`${BASE_URL}${path}`, {
+    headers: authHeaders(false),
+  });
+  if (!res.ok) throw await toApiError(res);
+  return res.blob();
+}
+
+/**
+ * Authenticated DELETE — expects 204 No Content.
+ */
+export async function apiDelete(path: string): Promise<void> {
+  const res = await fetch(`${BASE_URL}${path}`, {
+    method: "DELETE",
+    headers: authHeaders(false),
+  });
+  if (!res.ok) throw await toApiError(res);
+}
+
 export const api = {
   // --- Auth ---
   auth: {

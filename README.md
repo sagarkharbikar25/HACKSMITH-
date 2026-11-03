@@ -1,6 +1,12 @@
 <div align="center">
 
-<img src="docs/logo.png" alt="BrandGuard AI Logo" width="220" />
+<img src="docs/logo.svg" alt="BrandGuard AI Logo" width="380" />
+
+<p align="center">
+  <img src="docs/logo-a.svg" alt="Concept A: Range Bracket B (Primary Mark)" width="32" height="32" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="docs/logo-b.svg" alt="Concept B: Governance Aperture" width="32" height="32" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="docs/logo-c.svg" alt="Concept C: Scan Line Monogram" width="32" height="32" />
+</p>
 
 # BrandGuard AI 🛡️
 ### Intelligent Brand Governance, Visual Asset Compliance & Content Safety Platform

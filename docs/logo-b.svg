@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none">
+  <!-- BrandGuard Concept B: Gate (Governance Aperture) -->
+  <path
+    d="M14 6H22V42H14C10.6863 42 8 39.3137 8 36V12C8 8.68629 10.6863 6 14 6Z"
+    fill="#AFE607"
+  />
+  <path
+    d="M26 6H32C36.4183 6 40 9.58172 40 14V14C40 18.4183 36.4183 22 32 22H26V6Z"
+    fill="#AFE607"
+  />
+  <path
+    d="M26 26H32C36.4183 26 40 29.5817 40 34V34C40 38.4183 36.4183 42 32 42H26V26Z"
+    fill="#AFE607"
+  />
+</svg>

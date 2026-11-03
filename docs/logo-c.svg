@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none">
+  <!-- BrandGuard Concept C: Scan Line Monogram -->
+  <path
+    d="M14 8C10.6863 8 8 10.6863 8 14V34C8 37.3137 10.6863 40 14 40H18V24H32C36.4183 24 40 20.4183 40 16C40 11.5817 36.4183 8 32 8H14Z"
+    fill="#F4F6F0"
+  />
+  <path
+    d="M18 28H34C37.866 28 41 31.134 41 35C41 38.866 37.866 42 34 42H18V28Z"
+    fill="#AFE607"
+  />
+  <rect
+    x="26"
+    y="4"
+    width="3"
+    height="40"
+    rx="1.5"
+    fill="#AFE607"
+  />
+</svg>

@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none">
+  <!-- BrandGuard Concept A: Range Bracket B -->
+  <path
+    fill-rule="evenodd"
+    clip-rule="evenodd"
+    d="M8 12C8 8.68629 10.6863 6 14 6H28C33.5228 6 38 10.4772 38 16C38 21.5228 33.5228 22 28 22H8V12ZM16 11H26C28.7614 11 31 13.2386 31 16C31 18.7614 28.7614 17 26 17H16V11Z"
+    fill="#AFE607"
+  />
+  <path
+    fill-rule="evenodd"
+    clip-rule="evenodd"
+    d="M8 26H30C35.5228 26 40 30.4772 40 36C40 39.3137 37.3137 42 34 42H8V26ZM16 31H28C30.7614 31 33 33.2386 33 36C33 38.7614 30.7614 37 28 37H16V31Z"
+    fill="#AFE607"
+  />
+</svg>

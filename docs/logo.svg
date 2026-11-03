@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 90" fill="none">
+  <!-- BrandGuard AI Official Vector Logo Lockup -->
+  <g transform="translate(10, 10)">
+    <!-- Symbol: Concept A (Range Bracket B) in Brand Neon Lime #AFE607 -->
+    <g transform="scale(1.45)">
+      <!-- Upper Range Span -->
+      <path
+        fill-rule="evenodd"
+        clip-rule="evenodd"
+        d="M8 12C8 8.68629 10.6863 6 14 6H28C33.5228 6 38 10.4772 38 16C38 21.5228 33.5228 22 28 22H8V12ZM16 11H26C28.7614 11 31 13.2386 31 16C31 18.7614 28.7614 17 26 17H16V11Z"
+        fill="#AFE607"
+      />
+      <!-- Lower Highlighted Span -->
+      <path
+        fill-rule="evenodd"
+        clip-rule="evenodd"
+        d="M8 26H30C35.5228 26 40 30.4772 40 36C40 39.3137 37.3137 42 34 42H8V26ZM16 31H28C30.7614 31 33 33.2386 33 36C33 38.7614 30.7614 37 28 37H16V31Z"
+        fill="#AFE607"
+      />
+    </g>
+
+    <!-- Wordmark & Tag -->
+    <g transform="translate(80, 8)">
+      <text x="0" y="36" fill="#F4F6F0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, Roboto, sans-serif" font-size="34" font-weight="800" letter-spacing="-0.03em">BrandGuard</text>
+      
+      <!-- AI Badge -->
+      <g transform="translate(196, 12)">
+        <rect x="0" y="0" width="36" height="24" rx="5" fill="#AFE607" fill-opacity="0.15" stroke="#AFE607" stroke-opacity="0.4" stroke-width="1.2"/>
+        <text x="18" y="16.5" text-anchor="middle" fill="#AFE607" font-family="'JetBrains Mono', 'Fira Code', monospace" font-size="13" font-weight="800" letter-spacing="0.05em">AI</text>
+      </g>
+      
+      <!-- Subtitle -->
+      <text x="2" y="56" fill="#9EAA90" font-family="'JetBrains Mono', 'Fira Code', monospace" font-size="10.5" font-weight="600" letter-spacing="0.18em">COMPLIANCE &amp; GOVERNANCE ENGINE</text>
+    </g>
+  </g>
+</svg>
+

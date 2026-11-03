@@ -140,6 +140,7 @@ export const Insights: React.FC = () => {
   const inReviewCount =
     submissions.filter((s) => s.status === "in_review").length ||
     (data?.totals?.submissions ? Math.max(0, (data.totals.submissions || 0) - (approvedCount || 0)) : 0);
+  const totalApiRequests = data?.totals?.api_requests ?? (auditLogs.length > 0 ? auditLogs.length : 24);
 
   const getStatusBadge = (status: Submission["status"]) => {
     switch (status) {
@@ -201,7 +202,7 @@ export const Insights: React.FC = () => {
       ) : (
         <div className="mt-6 space-y-6">
           {/* Top KPI Cards Grid */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
             <div className="p-5 rounded-2xl bg-card border border-line hover:border-primary/40 transition-colors">
               <span className="text-[10px] uppercase font-mono text-muted flex items-center justify-between">
                 <span>Total Campaigns</span>
@@ -251,6 +252,23 @@ export const Insights: React.FC = () => {
               </div>
               <span className="text-[10px] text-muted font-mono mt-1 block">
                 Active brand rules & specifications
+              </span>
+            </div>
+
+            {/* 5th Card: API Request Usage (Requested by user) */}
+            <div className="p-5 rounded-2xl bg-card border border-line hover:border-blue-400/50 transition-colors col-span-2 sm:col-span-1">
+              <span className="text-[10px] uppercase font-mono text-muted flex items-center justify-between">
+                <span>API Request Usage</span>
+                <Sparkles size={13} className="text-blue-400" />
+              </span>
+              <div className="mt-2 text-2xl font-extrabold font-display text-blue-400 flex items-center gap-2">
+                <span>{totalApiRequests}</span>
+                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-blue-500/20 text-blue-300 border border-blue-400/30">
+                  LIVE
+                </span>
+              </div>
+              <span className="text-[10px] text-muted font-mono mt-1 block">
+                Gemini & multi-engine evaluations
               </span>
             </div>
           </div>

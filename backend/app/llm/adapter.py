@@ -64,6 +64,7 @@ If the copy has no additional subtle violations, respond with: []
 
     try:
         data = None
+        used_model = settings.GEMINI_MODEL or "gemini-3-flash-preview"
         for m in candidate_models:
             if not m:
                 continue
@@ -77,6 +78,7 @@ If the copy has no additional subtle violations, respond with: []
             try:
                 with urllib.request.urlopen(req, timeout=settings.LLM_TIMEOUT_S) as resp:
                     data = json.loads(resp.read().decode("utf-8"))
+                    used_model = m
                     break
             except urllib.error.HTTPError as he:
                 if he.code in (404, 503, 429):
@@ -139,7 +141,7 @@ If the copy has no additional subtle violations, respond with: []
 
         return LLMResult(
             status="ran",
-            reason=f"Google Gemini ({model})",
+            reason=f"Google Gemini ({used_model})",
             findings=findings
         )
 

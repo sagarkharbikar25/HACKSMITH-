@@ -99,7 +99,134 @@ def create_submission(
     db.add(AuditLog(actor_id=user.id, action="version.create", object_type="version", object_id=str(v1.id)))
     db.commit()
 
+    # Automatically audit Version 1 with multi-engine (Rules, Semantic, Gemini)
+    try:
+        run_audit(db, v1, actor_id=user.id)
+    except Exception as exc:
+        pass
+
     return get_submission(sub.id, user, db)
+
+from pydantic import BaseModel
+import urllib.request
+import urllib.error
+from ..config import settings
+
+class AIDraftRequest(BaseModel):
+    prompt: Optional[str] = "Launch social campaign for Lumora Smart Lamp"
+    content_type: Optional[str] = "social"
+    current_body: Optional[str] = None
+
+class AIDraftResponse(BaseModel):
+    body: str
+    model: str
+
+@router.post("/submissions/ai-draft", response_model=AIDraftResponse)
+def generate_ai_draft(
+    payload: AIDraftRequest,
+    user: User = Depends(require_roles("creator", "agency", "reviewer", "brand_manager", "admin")),
+    db: Session = Depends(get_db)
+):
+    """
+    Creator AI Assistant: Generates brand-compliant marketing copy or rewrites
+    existing copy to adhere strictly to verified brand rules using Google Gemini.
+    """
+    user_prompt = payload.prompt or "Launch social campaign for Lumora Smart Lamp"
+    content_type = payload.content_type or "social"
+    current_body = payload.current_body or ""
+
+    system_instructions = (
+        "You are an expert brand copywriter for Lumora Smart Lamp. "
+        "Strict Brand Rules & Verified Facts:\n"
+        "1. Product: Lumora Smart Lamp - adaptive circadian lighting with dual warm/cool spectrum.\n"
+        "2. Price: Exactly £89. NEVER use words like 'cheap', 'budget', or 'lowest price'. Use 'accessible' or 'affordable' instead.\n"
+        "3. Availability: Official availability is the UK and US ONLY. Do NOT mention India, EU, or global distribution.\n"
+        "4. Claims & Superlatives: NEVER claim 'best on the market', 'unmatched', or 'revolutionary'.\n"
+        "5. Tone: Premium, warm, clear, concise, and 100% compliant with brand rules.\n\n"
+    )
+
+    if current_body:
+        user_task = (
+            f"{system_instructions}"
+            f"REWRITE TASK: The following draft contains brand guideline violations. "
+            f"Rewrite it so that it is 100% brand-compliant, concise, and compelling for {content_type} media.\n"
+            f"ORIGINAL DRAFT:\n\"\"{current_body}\"\"\n\n"
+            "Respond ONLY with the revised, clean draft copy text. Do not wrap in markdown quotes or preamble."
+        )
+    else:
+        user_task = (
+            f"{system_instructions}"
+            f"GENERATION TASK: Generate a concise, high-converting {content_type} post based on this brief:\n"
+            f"\"{user_prompt}\"\n\n"
+            "Respond ONLY with the final draft copy text. Do not wrap in markdown quotes or preamble."
+        )
+
+    used_model = "heuristic"
+    result_text = None
+
+    if settings.GEMINI_API_KEY and settings.LLM_ENABLED:
+        candidate_models = [settings.GEMINI_MODEL, "gemini-3-flash-preview", "gemini-2.5-flash-lite", "gemini-flash-latest"]
+        req_payload = {
+            "contents": [{"parts": [{"text": user_task}]}],
+            "generationConfig": {
+                "temperature": 0.3,
+                "maxOutputTokens": 300
+            }
+        }
+        for m in candidate_models:
+            if not m:
+                continue
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/{m}:generateContent?key={settings.GEMINI_API_KEY}"
+            req = urllib.request.Request(
+                url,
+                data=json.dumps(req_payload).encode("utf-8"),
+                headers={"Content-Type": "application/json"},
+                method="POST"
+            )
+            try:
+                with urllib.request.urlopen(req, timeout=settings.LLM_TIMEOUT_S) as resp:
+                    resp_data = json.loads(resp.read().decode("utf-8"))
+                    candidates = resp_data.get("candidates", [])
+                    if candidates:
+                        parts = candidates[0].get("content", {}).get("parts", [])
+                        for p in parts:
+                            if "text" in p and p["text"].strip():
+                                result_text = p["text"].strip()
+                                used_model = f"Google Gemini ({m})"
+                                break
+                    if result_text:
+                        break
+            except Exception:
+                continue
+
+    if not result_text:
+        result_text = (
+            "Meet the Lumora Smart Lamp: adaptive ambient lighting engineered for everyday focus. "
+            "Crafted with sustainable materials, Lumora brings circadian-sync illumination to your desk "
+            "at an accessible £89. Available now across the UK and US."
+        )
+        used_model = "Brandora Compliant Heuristic (Offline)"
+
+    # Clean markdown fences if any
+    if result_text.startswith("```"):
+        lines = result_text.splitlines()
+        if lines and lines[0].startswith("```"):
+            lines = lines[1:]
+        if lines and lines[-1].startswith("```"):
+            lines = lines[:-1]
+        result_text = "\n".join(lines).strip()
+
+    # Log API usage
+    write_audit_log(
+        db,
+        actor_id=user.id,
+        action="ai.draft_generation",
+        object_type="submission",
+        object_id=content_type,
+        meta={"model": used_model, "prompt": user_prompt[:80]}
+    )
+
+    return AIDraftResponse(body=result_text, model=used_model)
 
 @router.get("/submissions/{id}", response_model=SubmissionDetailOut)
 def get_submission(

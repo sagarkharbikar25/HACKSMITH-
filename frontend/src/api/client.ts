@@ -202,6 +202,12 @@ export const api = {
         method: "POST",
       });
     },
+    async generateAIDraft(payload: { prompt?: string; content_type?: string; current_body?: string }): Promise<{ body: string; model: string }> {
+      return request<{ body: string; model: string }>("/submissions/ai-draft", {
+        method: "POST",
+        body: JSON.stringify(payload),
+      });
+    },
     async submit(id: number): Promise<SubmissionDetail> {
       return request<SubmissionDetail>(`/submissions/${id}/submit`, {
         method: "POST",

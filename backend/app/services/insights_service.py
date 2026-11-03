@@ -24,6 +24,7 @@ from ..llm.wording import propose, heuristic
 def get_insights(db: Session) -> InsightsOut:
     submissions_count = db.query(Submission).count()
     audits_count = db.query(AuditLog).filter(AuditLog.action == "audit.run").count()
+    total_logs = db.query(AuditLog).count()
     findings = db.query(Finding).all()
     reviews = db.query(Review).all()
 
@@ -35,7 +36,9 @@ def get_insights(db: Session) -> InsightsOut:
         "audits": max(audits_count, len(db.query(Version).all())),
         "findings": len(findings),
         "approved": approved_count,
-        "revision_requested": revision_count
+        "revision_requested": revision_count,
+        "api_requests": total_logs,
+        "llm_evaluations": audits_count
     }
 
     # Aggregate by category

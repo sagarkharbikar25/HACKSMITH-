@@ -15,7 +15,7 @@ export const EngineStatusBar: React.FC<Props> = ({
   engines = {
     rules: "ran",
     llm: "ran",
-    llm_reason: "gemini-3.5-flash",
+    llm_reason: "gemini-3-flash-preview",
     semantic: "ran",
   },
   summary = { critical: 0, high: 0, medium: 0, low: 0, total: 0 },

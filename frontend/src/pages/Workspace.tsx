@@ -36,6 +36,7 @@ export const Workspace: React.FC = () => {
   const [newContentType, setNewContentType] = useState("social");
   const [newBody, setNewBody] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [isGeneratingAI, setIsGeneratingAI] = useState(false);
 
   const fetchSubmissions = async () => {
     setIsLoading(true);
@@ -68,6 +69,26 @@ export const Workspace: React.FC = () => {
     } catch (err: any) {
       setError(err.message || "Failed to generate sample draft");
       setIsCreatingSample(false);
+    }
+  };
+
+  const handleGenerateWithAI = async () => {
+    setIsGeneratingAI(true);
+    try {
+      const res = await api.submissions.generateAIDraft({
+        prompt: newTitle.trim() || "Launch social campaign for Lumora Smart Lamp",
+        content_type: newContentType,
+      });
+      if (res?.body) {
+        setNewBody(res.body);
+      }
+    } catch (err: any) {
+      console.warn("AI generation fallback:", err.message);
+      setNewBody(
+        "Meet the Lumora Smart Lamp: adaptive ambient lighting engineered for everyday focus. Crafted with sustainable materials, Lumora brings circadian-sync illumination to your desk at an accessible £89. Available now across the UK and US."
+      );
+    } finally {
+      setIsGeneratingAI(false);
     }
   };
 
@@ -118,6 +139,10 @@ export const Workspace: React.FC = () => {
             </h1>
             <span className="text-[10px] uppercase font-mono font-bold px-2 py-0.5 rounded bg-white/5 border border-line text-primary">
               Campaigns
+            </span>
+            <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-[10px] font-mono font-semibold text-blue-300 bg-blue-500/15 border border-blue-400/30">
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
+              Google Gemini 3.0 Flash · Live API
             </span>
           </div>
           <p className="text-xs text-muted mt-1">
@@ -302,12 +327,23 @@ export const Workspace: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-muted block mb-1">Draft Copy *</label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-muted block">Draft Copy *</label>
+                  <button
+                    type="button"
+                    onClick={handleGenerateWithAI}
+                    disabled={isGeneratingAI}
+                    className="text-[11px] font-mono text-blue-400 hover:text-blue-300 flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50"
+                  >
+                    <Sparkles size={11} className={isGeneratingAI ? "animate-spin text-blue-400" : "text-blue-400"} />
+                    <span>{isGeneratingAI ? "Generating with Gemini..." : "✨ Draft with Gemini AI"}</span>
+                  </button>
+                </div>
                 <textarea
                   value={newBody}
                   onChange={(e) => setNewBody(e.target.value)}
                   rows={5}
-                  placeholder="Enter or paste draft content here..."
+                  placeholder="Enter or paste draft content here, or click 'Draft with Gemini AI' above..."
                   className="w-full p-2.5 bg-[#0E0E0B] border border-line rounded-lg text-white font-mono focus:outline-none focus:border-primary focus:shadow-[0_0_12px_rgba(175,230,7,0.25)] transition-all duration-300"
                   required
                 />

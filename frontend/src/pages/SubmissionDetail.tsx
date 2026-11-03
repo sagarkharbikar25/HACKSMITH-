@@ -54,6 +54,30 @@ export const SubmissionDetailView: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+  const [isAiRewriting, setIsAiRewriting] = useState(false);
+
+  const handleAiRewrite = async () => {
+    setIsAiRewriting(true);
+    setErrorMessage(null);
+    setSuccessMessage(null);
+    try {
+      const res = await api.submissions.generateAIDraft({
+        current_body: draftBody,
+        content_type: submission?.content_type || "social",
+      });
+      if (res?.body) {
+        setDraftBody(res.body);
+        setIsEditing(true);
+        setSuccessMessage(
+          `✨ ${res.model || "Google Gemini"} generated brand-compliant copy! Click 'Save & Recheck' to audit new version.`
+        );
+      }
+    } catch (err: any) {
+      setErrorMessage(err.message || "Failed to generate AI rewrite.");
+    } finally {
+      setIsAiRewriting(false);
+    }
+  };
   const [showDecisionModal, setShowDecisionModal] = useState(false);
   const [selectedEvidence, setSelectedEvidence] = useState<EvidenceRef | null>(null);
   const [focusedFindingId, setFocusedFindingId] = useState<number | null>(null);
@@ -465,7 +489,7 @@ export const SubmissionDetailView: React.FC = () => {
         engines={{
           rules: "ran",
           llm: (currentVersion?.engines?.llm === "unavailable" ? "unavailable" : (currentVersion?.engines?.llm || "ran")) as "ran" | "disabled" | "unavailable",
-          llm_reason: currentVersion?.engines?.llm_reason || "gemini-3.5-flash",
+          llm_reason: currentVersion?.engines?.llm_reason || "gemini-3-flash-preview",
           semantic: (currentVersion?.engines?.semantic as "ran" | "disabled" | "unavailable") || "ran",
           semantic_reason: currentVersion?.engines?.semantic_reason || null,
         }}
@@ -604,6 +628,17 @@ export const SubmissionDetailView: React.FC = () => {
 
             {!isReviewer ? (
               <div className="flex items-center gap-2">
+                {/* Gemini AI Compliant Rewrite */}
+                <button
+                  onClick={handleAiRewrite}
+                  disabled={isAiRewriting}
+                  title="Ask Google Gemini to rewrite this draft into brand-compliant copy"
+                  className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-blue-500/15 hover:bg-blue-500/25 border border-blue-400/40 text-[11px] text-blue-300 font-mono transition-colors shadow-[0_0_10px_rgba(59,130,246,0.15)] disabled:opacity-50 cursor-pointer"
+                >
+                  <Sparkles size={12} className={isAiRewriting ? "animate-spin text-blue-400" : "text-blue-400"} />
+                  <span>{isAiRewriting ? "Gemini Rewriting..." : "✨ Gemini AI Rewrite"}</span>
+                </button>
+
                 {/* Autofill Clean Copy Shortcut for Judges */}
                 <button
                   onClick={handleAutofillClean}

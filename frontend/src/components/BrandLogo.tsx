@@ -100,7 +100,7 @@ export const BrandLogo: React.FC<LogoProps> = ({
             <span
               className={`font-display font-extrabold tracking-[-0.02em] text-[#F4F6F0] leading-none ${config.titleSize}`}
             >
-              BrandGuard
+              Brandora
             </span>
             <span
               className={`inline-flex items-center justify-center font-mono font-bold leading-none rounded bg-primary/15 text-primary border border-primary/30 uppercase tracking-wider ${config.tagSize}`}

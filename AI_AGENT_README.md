@@ -1,6 +1,6 @@
-# BrandGuard AI 🛡️ — System Architecture & Comprehensive Master Handover Manual
+# Brandora AI 🛡️ — System Architecture & Comprehensive Master Handover Manual
 > **Master Documentation & AI Agent Specification**  
-> **Project:** BrandGuard AI (Inkloom AI Intelligent Brand Governance, Visual Asset Compliance & Content Safety Engine)  
+> **Project:** Brandora AI (Inkloom AI Intelligent Brand Governance, Visual Asset Compliance & Content Safety Engine)  
 > **Build Phase:** Round 3 Final Enterprise Production Release (100% Built, Unified & Verified)  
 > **Core Authors:** Sagar Kharbikar &bull; Ayush Roy  
 > **Repository:** `https://github.com/sagarkharbikar25/HACKSMITH-.git`  
@@ -36,10 +36,10 @@
 
 ## 1. Executive Summary & Core Philosophy
 
-### What is BrandGuard AI?
-**BrandGuard AI** is an enterprise pre-publication brand governance, factual consistency, visual asset compliance, and compliance gatekeeping platform. In high-velocity marketing, brands leak revenue, face regulatory penalties, and compromise consumer trust when unauthorized superlatives, factual territory misstatements, banned buzzwords, unbacked claims, off-palette visuals, or low-contrast graphics escape into live campaigns.
+### What is Brandora AI?
+**Brandora AI** is an enterprise pre-publication brand governance, factual consistency, visual asset compliance, and compliance gatekeeping platform. In high-velocity marketing, brands leak revenue, face regulatory penalties, and compromise consumer trust when unauthorized superlatives, factual territory misstatements, banned buzzwords, unbacked claims, off-palette visuals, or low-contrast graphics escape into live campaigns.
 
-**BrandGuard AI is NOT a generic copywriter or simple spellchecker.**  
+**Brandora AI is NOT a generic copywriter or simple spellchecker.**  
 It is an **evidence-based gatekeeper and automated compliance engine**. Every warning, flag, or suggestion produced by the system is linked to a deterministic, ground-truth **Evidence ID** (such as a legal substantiation filing, official product specification, or codified brand rule).
 
 ```
@@ -50,7 +50,7 @@ It is an **evidence-based gatekeeper and automated compliance engine**. Every wa
                                   │
                                   ▼
    ┌──────────────────────────────────────────────────────────────┐
-   │              Deterministic BrandGuard Audit Engine           │
+   │              Deterministic Brandora Audit Engine             │
    │  ├─ 1:1 Unicode NFC Normalization (Code-point accurate)      │
    │  ├─ Deterministic Rule Engine (Regex, Superlatives, Tone)    │
    │  ├─ Deterministic Fact Engine (Territories, Price, Specs)    │
@@ -80,8 +80,8 @@ It is an **evidence-based gatekeeper and automated compliance engine**. Every wa
 ```
 
 ### Core Design Principles:
-1. **Deterministic Authority First**: LLMs are non-deterministic and can hallucinate. In BrandGuard AI, an LLM can *never* emit a `confirmed_contradiction` unilaterally. Only the deterministic rule/fact engine holds authority to confirm factual contradictions. The LLM acts solely as a supplementary assistant for semantic nuance and wording refinements.
-2. **Zero-Drift Code-Point Offsets**: Text highlighting in web editors breaks when drafts contain emojis (e.g. 🛡️, ✨), non-breaking spaces, or curly quotes. BrandGuard guarantees exact code-point indexing across Python and TypeScript.
+1. **Deterministic Authority First**: LLMs are non-deterministic and can hallucinate. In Brandora AI, an LLM can *never* emit a `confirmed_contradiction` unilaterally. Only the deterministic rule/fact engine holds authority to confirm factual contradictions. The LLM acts solely as a supplementary assistant for semantic nuance and wording refinements.
+2. **Zero-Drift Code-Point Offsets**: Text highlighting in web editors breaks when drafts contain emojis (e.g. 🛡️, ✨), non-breaking spaces, or curly quotes. Brandora guarantees exact code-point indexing across Python and TypeScript.
 3. **Fail-Safe Resilience**: If the internet disconnects, the LLM quota exhausts, or the AI service goes offline, the core deterministic engine and visual checkers execute at 100% capability without blocking the user.
 4. **Zero Content Logging**: For GDPR/SOC2 compliance, immutable audit trails log *who* audited *what* at *what time* with *which rule IDs*, but **never** persist raw draft content in log files.
 5. **Self-Healing Brand Governance**: The platform clusters repeatedly disputed rules and offers 1-click wording revisions with visual diff previews to continuously refine ambiguous brand guidelines.
@@ -564,4 +564,4 @@ npm run build
 
 ---
 
-*This document serves as the master specification for BrandGuard AI. Any AI agent, developer, or judge reading this manual possesses complete context of the application's design system, visual tokens, backend architecture, compliance state machine, verified accomplishments, and live deployment configuration.*
+*This document serves as the master specification for Brandora AI. Any AI agent, developer, or judge reading this manual possesses complete context of the application's design system, visual tokens, backend architecture, compliance state machine, verified accomplishments, and live deployment configuration.*

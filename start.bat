@@ -2,13 +2,13 @@
 setlocal enabledelayedexpansion
 
 :: ============================================================================
-:: BrandGuard AI - One-Click Local Launcher
+:: Brandora AI - One-Click Local Launcher
 :: ============================================================================
-title BrandGuard AI - Launcher
+title Brandora AI - Launcher
 cd /d "%~dp0"
 
 echo ====================================================================
-echo                   Starting BrandGuard AI Platform
+echo                   Starting Brandora AI Platform
 echo ====================================================================
 echo.
 
@@ -125,10 +125,10 @@ if !errorlevel! equ 1 (
 :: ----------------------------------------------------------------------------
 echo.
 echo [INFO] Starting Backend API server on http://localhost:8000...
-start "BrandGuard AI - Backend" /d "%~dp0backend" cmd /k ""%PYTHON_EXE%" -m uvicorn app.main:app --reload --port 8000"
+start "Brandora AI - Backend" /d "%~dp0backend" cmd /k ""%PYTHON_EXE%" -m uvicorn app.main:app --reload --port 8000"
 
 echo [INFO] Starting Frontend Vite server on http://localhost:5173...
-start "BrandGuard AI - Frontend" /d "%~dp0frontend" cmd /k "npm run dev"
+start "Brandora AI - Frontend" /d "%~dp0frontend" cmd /k "npm run dev"
 
 :: ----------------------------------------------------------------------------
 :: 7. Wait for Servers to Initialize & Automatically Open Browser
@@ -137,7 +137,7 @@ echo [INFO] Waiting for servers to come online...
 powershell -NoProfile -ExecutionPolicy Bypass -Command "$ready=$false; for($i=0; $i -lt 30; $i++){ try { $r=Invoke-WebRequest -Uri 'http://127.0.0.1:5173' -UseBasicParsing -TimeoutSec 1; if($r.StatusCode -eq 200){ $ready=$true; break } } catch {}; Start-Sleep -Milliseconds 500 }; if(-not $ready){ Start-Sleep -Seconds 2 }" >nul 2>nul
 
 echo.
-echo [INFO] Launching BrandGuard AI in your default browser...
+echo [INFO] Launching Brandora AI in your default browser...
 start "" "http://localhost:5173"
 
 :: ----------------------------------------------------------------------------
@@ -146,7 +146,7 @@ start "" "http://localhost:5173"
 :menu
 cls
 echo ====================================================================
-echo                    BrandGuard AI is Running!
+echo                    Brandora AI is Running!
 echo ====================================================================
 echo.
 echo   * Web Application:   http://localhost:5173
@@ -187,7 +187,7 @@ goto menu
 :shutdown
 echo.
 echo ====================================================================
-echo Stopping BrandGuard AI servers...
+echo Stopping Brandora AI servers...
 echo ====================================================================
 powershell -NoProfile -ExecutionPolicy Bypass -Command "$pids = Get-NetTCPConnection -LocalPort 8000,5173 -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess -Unique; if ($pids) { foreach ($id in $pids) { try { Stop-Process -Id $id -Force -ErrorAction SilentlyContinue } catch {} } }" >nul 2>nul
 echo [OK] All servers have been stopped.

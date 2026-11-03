@@ -23,7 +23,7 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error("BrandGuard UI ErrorBoundary caught error:", error, errorInfo);
+    console.error("Brandora UI ErrorBoundary caught error:", error, errorInfo);
     this.setState({ errorInfo });
   }
 
@@ -55,7 +55,7 @@ export class ErrorBoundary extends Component<Props, State> {
                 Application Rendering Interruption
               </span>
               <h2 className="text-xl font-bold font-display text-white mt-2">
-                BrandGuard Interface Recovered
+                Brandora Interface Recovered
               </h2>
               <p className="text-xs text-muted mt-2 font-sans leading-relaxed">
                 An unexpected UI state occurred. You can reload this view or reset your session credentials to return cleanly to the login portal.

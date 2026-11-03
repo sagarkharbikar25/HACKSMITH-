@@ -1,5 +1,5 @@
 """
-Live Gemini LLM adapter for BrandGuard AI.
+Live Gemini LLM adapter for Brandora AI.
 Uses Google Gemini REST API (gemini-3.5-flash) with grounding against retrieved context rules and facts.
 Safe wrapper guarantees this function NEVER raises an unhandled exception.
 """

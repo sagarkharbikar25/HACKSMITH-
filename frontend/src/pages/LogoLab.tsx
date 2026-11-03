@@ -20,7 +20,7 @@ export const LogoMarkA: React.FC<{ size?: number; color?: "lime" | "white" | "cu
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       className={`shrink-0 ${className}`}
-      aria-label="BrandGuard Concept A: Range Bracket B"
+      aria-label="Brandora Concept A: Range Bracket B"
     >
       {/* Upper Range Span with text-bracket anchor [ */}
       <path
@@ -54,7 +54,7 @@ export const LogoMarkB: React.FC<{ size?: number; color?: "lime" | "white" | "cu
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       className={`shrink-0 ${className}`}
-      aria-label="BrandGuard Concept B: Gate"
+      aria-label="Brandora Concept B: Gate"
     >
       {/* Left Gate Pillar / Governance Monolith */}
       <path
@@ -91,7 +91,7 @@ export const LogoMarkC: React.FC<{ size?: number; color?: "lime" | "white" | "cu
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       className={`shrink-0 ${className}`}
-      aria-label="BrandGuard Concept C: Scan Line Monogram"
+      aria-label="Brandora Concept C: Scan Line Monogram"
     >
       {/* Document Spine & Line 1 text bar */}
       <path
@@ -154,7 +154,7 @@ export const ConceptLockup: React.FC<{
           <span
             className={`font-display font-extrabold tracking-[-0.02em] text-[#F4F6F0] leading-none ${style.title}`}
           >
-            BrandGuard
+            Brandora
           </span>
           <span
             className={`inline-flex items-center justify-center font-mono font-bold leading-none rounded bg-[#AFE607]/15 text-[#AFE607] border border-[#AFE607]/30 uppercase tracking-wider ${style.tag}`}
@@ -183,7 +183,7 @@ export const LogoLab: React.FC = () => {
       name: "Concept A: Range Bracket B",
       subtitle: "Deterministic [start:end] text-selection range cut by the audit beam",
       whyItFits:
-        "Directly models BrandGuard's deterministic architecture: the [start:end] character-offset brackets that anchor every rule violation, horizontally sliced by the signature compliance scan beam.",
+        "Directly models Brandora's deterministic architecture: the [start:end] character-offset brackets that anchor every rule violation, horizontally sliced by the signature compliance scan beam.",
       critique:
         "Constructed from 2 mathematically balanced shapes. Avoids any shield or lock cliché. Reads instantly as a capital 'B' while carrying authentic product meaning that can be sketched from memory in 3 strokes.",
       recommended: true,
@@ -194,7 +194,7 @@ export const LogoLab: React.FC = () => {
       name: "Concept B: Gate (Governance Aperture)",
       subtitle: "The monolithic compliance portal that opens only when verification passes",
       whyItFits:
-        "Symbolizes BrandGuard's definitive gatekeeper role: marketing copy is blocked by the solid left monolith until verification opens the 4px central clearance aperture.",
+        "Symbolizes Brandora's definitive gatekeeper role: marketing copy is blocked by the solid left monolith until verification opens the 4px central clearance aperture.",
       critique:
         "Architectural, monolithic, and authoritative (like Vercel or Linear). Pure negative space geometry with 3 shapes and zero decorative clutter. Scales with extreme contrast even at 16px.",
       recommended: false,
@@ -239,7 +239,7 @@ export const LogoLab: React.FC = () => {
               </span>
             </div>
             <h1 className="text-3xl font-extrabold font-display tracking-tight text-white">
-              BrandGuard AI &bull; Brand Identity Design Lab
+              Brandora AI &bull; Brand Identity Design Lab
             </h1>
             <p className="text-sm text-muted mt-1 max-w-2xl">
               Evaluation suite for the brand identity redesign. Pure vector marks built on a 48x48 grid,
@@ -287,7 +287,7 @@ export const LogoLab: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                   <div className="p-4 rounded-xl bg-raised/70 border border-line">
                     <h4 className="font-mono font-bold uppercase text-[10px] text-primary tracking-wider mb-1.5">
-                      Why it fits BrandGuard AI
+                      Why it fits Brandora AI
                     </h4>
                     <p className="text-muted leading-relaxed">{concept.whyItFits}</p>
                   </div>
@@ -398,7 +398,7 @@ export const LogoLab: React.FC = () => {
               Senior Designer's Recommendation: Concept A &bull; Range Bracket B
             </h3>
             <p className="text-xs text-muted mt-1 max-w-2xl leading-relaxed">
-              Concept A has the deepest authentic connection to BrandGuard AI's core deterministic engine.
+              Concept A has the deepest authentic connection to Brandora AI's core deterministic engine.
               The text bracket <code className="text-primary font-mono">[</code> directly evokes the code-point offset spans,
               while the razor horizontal notch visually represents the lime scan beam. It remains razor sharp down to 16px
               and carries an iconic, executive weight reminiscent of Stripe and Linear.

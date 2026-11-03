@@ -113,7 +113,7 @@ export const HowToEvaluateDrawer: React.FC<Props> = ({ isOpen, onClose }) => {
             <div className="flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-signal shadow-[0_0_8px_#AFE607]" />
               <h2 className="text-xl font-bold font-display tracking-tight text-white">
-                How to Evaluate BrandGuard AI
+                How to Evaluate Brandora AI
               </h2>
             </div>
             <button

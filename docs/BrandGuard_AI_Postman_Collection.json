@@ -1,7 +1,7 @@
 {
   "info": {
-    "name": "BrandGuard AI - Round 3 API Collection (3 Core Modules)",
-    "description": "Postman test suite for BrandGuard AI covering the 3 prototype modules:\n1. Creator Studio (Elena Vance)\n2. Review Terminal (Marcus Cole)\n3. Brand Governance Center (Sarah Chen)\n\nCovers:\n- Multi-modal compliance (Deterministic rules + Semantic vector matching)\n- Document Ingestion (PDF/DOCX) & Governance queue\n- Creative Assets Visual (Palette & WCAG Contrast) Compliance\n- Guideline-Gap Analytics, Clustering & Wording Refinement\n- Operations (Embedding reindexing, activity seeding, demo reset)",
+    "name": "Brandora AI - Round 3 API Collection (3 Core Modules)",
+    "description": "Postman test suite for Brandora AI covering the 3 prototype modules:\n1. Creator Studio (Elena Vance)\n2. Review Terminal (Marcus Cole)\n3. Brand Governance Center (Sarah Chen)\n\nCovers:\n- Multi-modal compliance (Deterministic rules + Semantic vector matching)\n- Document Ingestion (PDF/DOCX) & Governance queue\n- Creative Assets Visual (Palette & WCAG Contrast) Compliance\n- Guideline-Gap Analytics, Clustering & Wording Refinement\n- Operations (Embedding reindexing, activity seeding, demo reset)",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [

@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/logo.svg" alt="BrandGuard AI Logo" width="380" />
+<img src="docs/logo.svg" alt="Brandora AI Logo" width="380" />
 
 <p align="center">
   <img src="docs/logo-a.svg" alt="Concept A: Range Bracket B (Primary Mark)" width="32" height="32" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -8,7 +8,7 @@
   <img src="docs/logo-c.svg" alt="Concept C: Scan Line Monogram" width="32" height="32" />
 </p>
 
-# BrandGuard AI 🛡️
+# Brandora AI 🛡️
 ### Intelligent Brand Governance, Visual Asset Compliance & Content Safety Platform
 
 [![CI/CD Pipeline](https://github.com/sagarkharbikar25/HACKSMITH-/actions/workflows/ci.yml/badge.svg)](https://github.com/sagarkharbikar25/HACKSMITH-/actions/workflows/ci.yml)
@@ -35,7 +35,7 @@
 
 Modern organizations scale content across employees, partner agencies, and AI generators—frequently introducing contradictory facts, banned hyperbole, off-palette visuals, and unsupported claims before anyone notices.
 
-**BrandGuard AI** is an enterprise pre-publication governance platform that validates multi-channel marketing collateral (text copy, graphic assets, and brand guidelines) before publication. Rather than functioning as a black-box rewriter, BrandGuard AI:
+**Brandora AI** is an enterprise pre-publication governance platform that validates multi-channel marketing collateral (text copy, graphic assets, and brand guidelines) before publication. Rather than functioning as a black-box rewriter, Brandora AI:
 1. **Detects** inconsistencies in tone, factual claims, terminology, visual color harmony ($\Delta\text{E}$ CIE76), and accessibility (WCAG AA 4.5:1).
 2. **Explains** each issue with verifiable ground-truth citations to approved brand books and specifications.
 3. **Preserves Human Agency** by suggesting in-place corrections without overriding human editorial intent.
@@ -233,7 +233,7 @@ SMTP_FROM=your_email@gmail.com
 
 ## 🧪 Testing & CI/CD Pipeline
 
-BrandGuard AI includes a 100% automated test suite covering security, role matrix, visual checks, and API endpoints.
+Brandora AI includes a 100% automated test suite covering security, role matrix, visual checks, and API endpoints.
 
 ```bash
 # Run backend test suite
@@ -259,5 +259,5 @@ Every push to `main` triggers our GitHub Actions CI workflow (`.github/workflows
 ---
 
 <div align="center">
-<b>BrandGuard AI</b> &bull; Built with precision for the Inkloom AI Hackathon 2026.
+<b>Brandora AI</b> &bull; Built with precision for the Inkloom AI Hackathon 2026.
 </div>

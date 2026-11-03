@@ -11,7 +11,12 @@ jobs:
     steps:
       - name: Ping backend health check
         run: |
-          # Replace with your production URL once deployed
           URL="${{ secrets.BACKEND_PROD_URL || 'https://hacksmith.onrender.com/api/health' }}"
           echo "Pinging $URL ..."
-          curl -s -f "$URL" || echo "Ping completed."
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$URL")
+          echo "Backend responded with HTTP $HTTP_CODE"
+          if [ "$HTTP_CODE" -eq 200 ]; then
+            echo "Backend is healthy and awake!"
+          else
+            echo "Backend responded with HTTP $HTTP_CODE (warming up or restarting)"
+          fi

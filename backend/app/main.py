@@ -125,6 +125,17 @@ def _get_embedding_count(db: Session) -> int:
         pass
     return _cached_emb_count
 
+@app.get("/")
+@app.head("/")
+def root():
+    return {
+        "name": "Brandora AI API",
+        "status": "online",
+        "version": settings.VERSION,
+        "docs": "/docs",
+        "health": "/api/health"
+    }
+
 # Health Check (Both /health and /api/health)
 @app.get("/health")
 @app.get("/api/health")

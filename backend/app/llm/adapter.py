@@ -53,34 +53,50 @@ Respond ONLY with a JSON list of objects matching this schema:
 If the copy has no additional subtle violations, respond with: []
 """
 
-    model = settings.GEMINI_MODEL or "gemini-3.5-flash"
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={settings.GEMINI_API_KEY}"
+    candidate_models = [settings.GEMINI_MODEL, "gemini-3-flash-preview", "gemini-2.5-flash-lite", "gemini-flash-latest"]
+    payload = {
+        "contents": [{"parts": [{"text": prompt}]}],
+        "generationConfig": {
+            "temperature": 0.1,
+            "responseMimeType": "application/json"
+        }
+    }
 
     try:
-        payload = {
-            "contents": [{"parts": [{"text": prompt}]}],
-            "generationConfig": {
-                "temperature": 0.1,
-                "responseMimeType": "application/json"
-            }
-        }
-        req = urllib.request.Request(
-            url,
-            data=json.dumps(payload).encode("utf-8"),
-            headers={"Content-Type": "application/json"},
-            method="POST"
-        )
-        with urllib.request.urlopen(req, timeout=settings.LLM_TIMEOUT_S) as resp:
-            data = json.loads(resp.read().decode("utf-8"))
-            candidates = data.get("candidates", [])
-            raw_text = "[]"
-            if candidates:
-                content = candidates[0].get("content", {})
-                parts = content.get("parts", [])
-                for part in parts:
-                    if "text" in part:
-                        raw_text = part["text"]
-                        break
+        data = None
+        for m in candidate_models:
+            if not m:
+                continue
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/{m}:generateContent?key={settings.GEMINI_API_KEY}"
+            req = urllib.request.Request(
+                url,
+                data=json.dumps(payload).encode("utf-8"),
+                headers={"Content-Type": "application/json"},
+                method="POST"
+            )
+            try:
+                with urllib.request.urlopen(req, timeout=settings.LLM_TIMEOUT_S) as resp:
+                    data = json.loads(resp.read().decode("utf-8"))
+                    break
+            except urllib.error.HTTPError as he:
+                if he.code in (404, 503, 429):
+                    continue
+                raise
+            except Exception:
+                continue
+
+        if not data:
+            raise RuntimeError("All Gemini candidate models returned 404/503 traffic errors")
+
+        candidates = data.get("candidates", [])
+        raw_text = "[]"
+        if candidates:
+            content = candidates[0].get("content", {})
+            parts = content.get("parts", [])
+            for part in parts:
+                if "text" in part:
+                    raw_text = part["text"]
+                    break
 
         # Clean JSON markdown fences if any
         clean_text = raw_text.strip()

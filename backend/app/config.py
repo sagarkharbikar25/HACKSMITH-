@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     # Gemini LLM Configuration
     LLM_ENABLED: bool = os.getenv("LLM_ENABLED", "true").lower() in ("true", "1")
     GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
-    GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-3.5-flash")
+    GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-3-flash-preview")
     LLM_TIMEOUT_S: int = int(os.getenv("LLM_TIMEOUT_S", "8"))
 
     # --- Round 3 Feature Flags ---

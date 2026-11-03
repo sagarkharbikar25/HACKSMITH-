@@ -252,6 +252,9 @@ def extract_proposals_from_chunk(
                     source_excerpt=rp.get("source_excerpt", "").strip(),
                     extraction_confidence=rp.get("extraction_confidence", "medium")
                 ))
+            if not candidates:
+                generator = "heuristic"
+                candidates = extract_heuristic_proposals(chunk, document_title)
         except Exception:
             # Fall back cleanly to heuristic if AI fails
             generator = "heuristic"

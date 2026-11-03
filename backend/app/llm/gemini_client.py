@@ -110,7 +110,7 @@ def generate_json(prompt: str, timeout: float = 12.0) -> Dict[str, Any]:
     if not settings.GEMINI_API_KEY or not settings.LLM_ENABLED:
         return {}
 
-    candidates_models = [settings.GEMINI_MODEL, "gemini-2.5-flash", "gemini-1.5-flash"]
+    candidates_models = [settings.GEMINI_MODEL, "gemini-3-flash-preview", "gemini-2.5-flash-lite", "gemini-flash-latest"]
     payload = {
         "contents": [{"parts": [{"text": prompt}]}],
         "generationConfig": {

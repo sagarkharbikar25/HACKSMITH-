@@ -69,7 +69,7 @@ def recover_stale_ingestion_jobs(db: Session) -> int:
     """
     Recovers jobs abandoned if the server crashed/restarted while parsing or extracting.
     """
-    cutoff = datetime.utcnow() - timedelta(minutes=15)
+    cutoff = datetime.utcnow() - timedelta(minutes=3)
     stale_docs = db.query(GuidelineDocument).filter(
         GuidelineDocument.status.in_(["queued", "parsing", "extracting"]),
         GuidelineDocument.created_at < cutoff

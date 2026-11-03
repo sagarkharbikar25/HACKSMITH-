@@ -77,7 +77,7 @@ def run_deterministic_evaluation():
         }
 
     results = {
-        "benchmark": "BrandGuard AI Round 2 Compliance Test Suite",
+        "benchmark": "Brandora AI Round 2 Compliance Test Suite",
         "total_test_items": len(test_items),
         "overall": {
             "precision": overall_precision,
@@ -182,7 +182,7 @@ def run_semantic_evaluation():
     selected = next(r for r in sweep_results if r["threshold"] == best_thresh)
 
     results = {
-        "benchmark": "BrandGuard AI Round 3 Semantic Paraphrase Evaluation & Calibration Suite",
+        "benchmark": "Brandora AI Round 3 Semantic Paraphrase Evaluation & Calibration Suite",
         "total_test_items": len(test_items),
         "calibrated_thresholds": {
             "SEMANTIC_FLAG_THRESHOLD": best_thresh,

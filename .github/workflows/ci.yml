@@ -1,4 +1,4 @@
-name: BrandGuard AI CI/CD Pipeline
+name: Brandora AI CI/CD Pipeline
 
 on:
   push:

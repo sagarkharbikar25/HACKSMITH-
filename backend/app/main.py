@@ -39,7 +39,7 @@ async def lifespan(app: FastAPI):
     yield
 
 app = FastAPI(
-    title="BrandGuard AI - Content Compliance & Governance API",
+    title="Brandora AI - Content Compliance & Governance API",
     description="Automated multi-modal brand guideline, visual compliance, and factual consistency verification engine.",
     version=settings.VERSION,
     lifespan=lifespan

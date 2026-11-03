@@ -46,7 +46,7 @@ export const EngineStatusBar: React.FC<Props> = ({
           </span>
         </div>
 
-        {/* BrandGuard Engine Pill */}
+        {/* Brandora Engine Pill */}
         <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-white/5 border border-line font-mono text-[11px] text-muted">
           <Cpu size={12} className="text-primary" />
           <span>Rules Engine:</span>

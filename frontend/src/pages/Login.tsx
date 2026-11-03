@@ -117,7 +117,7 @@ export const Login: React.FC = () => {
             <BrandSymbol size={56} />
           </div>
           <h1 className="text-3xl sm:text-4xl font-extrabold font-display tracking-[-0.02em] text-[#F4F6F0] leading-none">
-            BrandGuard <span className="text-primary font-mono text-xl uppercase font-bold px-2 py-0.5 rounded bg-primary/15 border border-primary/30 ml-1.5 align-middle">AI</span>
+            Brandora <span className="text-primary font-mono text-xl uppercase font-bold px-2 py-0.5 rounded bg-primary/15 border border-primary/30 ml-1.5 align-middle">AI</span>
           </h1>
           <p className="mt-2.5 text-xs text-muted max-w-xs mx-auto leading-relaxed">
             Enterprise automated brand guideline and factual compliance governance platform.

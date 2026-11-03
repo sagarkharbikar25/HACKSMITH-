@@ -1,9 +1,9 @@
 @echo off
 setlocal
-title BrandGuard AI - Stop Services
+title Brandora AI - Stop Services
 
 echo ====================================================================
-echo                   Stopping BrandGuard AI Services
+echo                   Stopping Brandora AI Services
 echo ====================================================================
 echo.
 echo Terminating processes listening on ports 8000 (Backend) and 5173 (Frontend)...

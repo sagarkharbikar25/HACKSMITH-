@@ -719,7 +719,7 @@ export const SubmissionDetailView: React.FC = () => {
               </span>
             </div>
 
-            {/* AI Option Filter Tabs: BrandGuard Module vs Google Gemini */}
+            {/* AI Option Filter Tabs: Brandora Module vs Google Gemini */}
             {activeFindings.length > 0 && (
               <div className="flex items-center gap-1.5 p-1 bg-card rounded-xl border border-line text-xs font-mono">
                 <button
@@ -741,7 +741,7 @@ export const SubmissionDetailView: React.FC = () => {
                   }`}
                 >
                   <Cpu size={11} className="text-primary" />
-                  <span>BrandGuard Module ({activeFindings.filter(f => f.source_engine !== "llm" && f.source_engine !== "gemini").length})</span>
+                  <span>Brandora Module ({activeFindings.filter(f => f.source_engine !== "llm" && f.source_engine !== "gemini").length})</span>
                 </button>
                 <button
                   onClick={() => setModelFilter("gemini")}
@@ -812,7 +812,7 @@ export const SubmissionDetailView: React.FC = () => {
                 return true;
               }).length === 0 && (
                 <div className="p-6 rounded-xl bg-card border border-line text-center text-xs text-muted font-mono">
-                  No findings from {modelFilter === "gemini" ? "Google Gemini" : "BrandGuard Module"} in this version.
+                  No findings from {modelFilter === "gemini" ? "Google Gemini" : "Brandora Module"} in this version.
                 </div>
               )}
             </div>

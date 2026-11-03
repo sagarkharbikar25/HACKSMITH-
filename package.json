@@ -1,5 +1,5 @@
 {
-  "name": "brandguard-ai",
+  "name": "brandora-ai",
   "scripts": {
     "dev": "npm --prefix frontend run dev",
     "build": "npm --prefix frontend run build"

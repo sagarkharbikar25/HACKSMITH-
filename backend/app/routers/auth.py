@@ -47,13 +47,13 @@ def send_reset_email(to_email: str, token: str) -> bool:
     reset_link = f"{frontend_base}/login?token={token}"
 
     msg = MIMEMultipart("alternative")
-    msg["Subject"] = "BrandGuard AI - Password Reset Instructions"
+    msg["Subject"] = "Brandora AI - Password Reset Instructions"
     msg["From"] = sender
     msg["To"] = to_email
 
     text_body = f"""Hello,
 
-You recently requested a password reset for your BrandGuard AI account ({to_email}).
+You recently requested a password reset for your Brandora AI account ({to_email}).
 
 Click the link below to set your new password:
 {reset_link}
@@ -65,14 +65,14 @@ This link and token will expire in 15 minutes.
 If you did not request this reset, you can safely ignore this email.
 
 Best regards,
-BrandGuard AI Governance Team
+Brandora AI Governance Team
 """
     html_body = f"""<!DOCTYPE html>
 <html>
 <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #0E0E0B; color: #FFFFFF; padding: 30px; margin: 0;">
   <div style="max-width: 520px; margin: 0 auto; background-color: #141410; border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 32px;">
     <div style="margin-bottom: 24px;">
-      <span style="font-size: 20px; font-weight: bold; color: #AFE607; letter-spacing: -0.5px;">BRANDGUARD AI</span>
+      <span style="font-size: 20px; font-weight: bold; color: #AFE607; letter-spacing: -0.5px;">BRANDORA AI</span>
     </div>
     <h2 style="font-size: 18px; font-weight: 600; color: #FFFFFF; margin: 0 0 12px 0;">Reset Your Password</h2>
     <p style="font-size: 13px; color: #A1A19A; line-height: 1.6; margin: 0 0 24px 0;">

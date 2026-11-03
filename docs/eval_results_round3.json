@@ -1,5 +1,5 @@
 {
-  "benchmark": "BrandGuard AI Round 3 Semantic Paraphrase Evaluation & Calibration Suite",
+  "benchmark": "Brandora AI Round 3 Semantic Paraphrase Evaluation & Calibration Suite",
   "total_test_items": 24,
   "calibrated_thresholds": {
     "SEMANTIC_FLAG_THRESHOLD": 0.94,

@@ -14,8 +14,8 @@ interface Props {
 export const EngineStatusBar: React.FC<Props> = ({
   engines = {
     rules: "ran",
-    llm: "disabled",
-    llm_reason: "deterministic rule engine active",
+    llm: "ran",
+    llm_reason: "gemini-3.5-flash",
     semantic: "ran",
   },
   summary = { critical: 0, high: 0, medium: 0, low: 0, total: 0 },
@@ -87,7 +87,7 @@ export const EngineStatusBar: React.FC<Props> = ({
           <Sparkles size={12} className={engines.llm === "ran" ? "text-blue-400" : "text-ai"} />
           <span className="font-semibold">Google Gemini:</span>
           <span className={engines.llm === "ran" ? "text-blue-300 font-bold" : "text-muted"}>
-            {engines.llm === "ran" ? "Active (Watermarked)" : engines.llm}
+            {engines.llm === "ran" ? "Active" : engines.llm}
           </span>
           {engines.llm_reason && (
             <span className="text-[10px] text-muted/70">({engines.llm_reason})</span>

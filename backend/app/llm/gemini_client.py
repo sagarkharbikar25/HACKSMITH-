@@ -99,3 +99,54 @@ def embed_texts(
 
     return all_embeddings
 
+
+
+def generate_json(prompt: str, timeout: float = 12.0) -> Dict[str, Any]:
+    """
+    Call Gemini generateContent endpoint with JSON output mode.
+    Returns parsed dictionary or empty dict on failure.
+    """
+    import json
+    if not settings.GEMINI_API_KEY or not settings.LLM_ENABLED:
+        return {}
+
+    candidates_models = [settings.GEMINI_MODEL, "gemini-2.5-flash", "gemini-1.5-flash"]
+    payload = {
+        "contents": [{"parts": [{"text": prompt}]}],
+        "generationConfig": {
+            "temperature": 0.1,
+            "responseMimeType": "application/json"
+        }
+    }
+
+    for model in candidates_models:
+        if not model:
+            continue
+        url = f"{BASE_URL}/models/{model}:generateContent?key={settings.GEMINI_API_KEY}"
+        try:
+            with httpx.Client(timeout=timeout) as client:
+                res = client.post(url, json=payload, headers={"Content-Type": "application/json"})
+                if res.status_code == 200:
+                    data = res.json()
+                    candidates = data.get("candidates", [])
+                    if candidates:
+                        parts = candidates[0].get("content", {}).get("parts", [])
+                        raw_text = "".join(p.get("text", "") for p in parts).strip()
+                        if raw_text.startswith("```json"):
+                            raw_text = raw_text[7:]
+                        if raw_text.startswith("```"):
+                            raw_text = raw_text[3:]
+                        if raw_text.endswith("```"):
+                            raw_text = raw_text[:-3]
+                        raw_text = raw_text.strip()
+                        return json.loads(raw_text)
+                elif res.status_code == 404:
+                    continue
+                else:
+                    logger.warning("Gemini JSON generation HTTP %d: %s", res.status_code, res.text[:120])
+                    break
+        except Exception as exc:
+            logger.warning("Gemini JSON generation exception: %s", exc)
+            break
+
+    return {}

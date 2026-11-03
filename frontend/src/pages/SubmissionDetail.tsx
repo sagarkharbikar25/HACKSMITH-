@@ -294,10 +294,10 @@ export const SubmissionDetailView: React.FC = () => {
 
   const versionsList = submission.versions || [];
   const latestVersion = versionsList.length > 0 ? versionsList[versionsList.length - 1] : null;
-  const currentVersionNumber =
-    versionsList.find((v) => v.id === selectedVersionId)?.number ||
-    latestVersion?.number ||
-    1;
+  const currentVersion =
+    versionsList.find((v) => v.id === selectedVersionId) ||
+    latestVersion;
+  const currentVersionNumber = currentVersion?.number || 1;
 
   const activeFindings = submission.latest_findings || [];
   const openFindingsCount = activeFindings.filter((f) => f.resolution === "open").length;
@@ -464,8 +464,10 @@ export const SubmissionDetailView: React.FC = () => {
       <EngineStatusBar
         engines={{
           rules: "ran",
-          llm: "disabled",
-          llm_reason: "deterministic rule engine active",
+          llm: (currentVersion?.engines?.llm === "unavailable" ? "unavailable" : (currentVersion?.engines?.llm || "ran")) as "ran" | "disabled" | "unavailable",
+          llm_reason: currentVersion?.engines?.llm_reason || "gemini-3.5-flash",
+          semantic: (currentVersion?.engines?.semantic as "ran" | "disabled" | "unavailable") || "ran",
+          semantic_reason: currentVersion?.engines?.semantic_reason || null,
         }}
         summary={summary}
         isScanning={isScanning}

@@ -1,3 +1,4 @@
+import os
 """
 Database session and connection management.
 SQLite for local development, Postgres (pooler URL) in production.
@@ -10,7 +11,7 @@ from .config import settings
 
 logger = logging.getLogger(__name__)
 
-db_url = settings.DATABASE_URL
+db_url = "sqlite:///./test_brandguard.db" if os.getenv("TESTING") == "1" else settings.DATABASE_URL
 
 # Normalize Supabase / Render PostgreSQL connection strings to explicitly use psycopg2
 if db_url.startswith("postgres://"):

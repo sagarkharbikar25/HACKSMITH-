@@ -7,7 +7,7 @@ except ImportError:
 
 class Settings(BaseSettings):
     # Core & Database
-    DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./brandguard.db")
+    DATABASE_URL: str = "sqlite:///./test_brandguard.db" if os.getenv("TESTING") == "1" else os.getenv("DATABASE_URL", "sqlite:///./brandguard.db")
     JWT_SECRET: str = os.getenv("JWT_SECRET", "supersecret-demo-jwt-key-brandguard-2026")
     JWT_ALGORITHM: str = "HS256"
     JWT_EXPIRE_MIN: int = int(os.getenv("JWT_EXPIRE_MIN", "720"))

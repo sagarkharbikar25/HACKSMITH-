@@ -1,4 +1,4 @@
-name: Brandora AI CI/CD Pipeline
+name: BrandGuard AI CI/CD Pipeline
 
 on:
   push:
@@ -27,7 +27,7 @@ jobs:
 
       - name: Run Pytest Test Suite
         env:
-          PYTHONPATH: ./backend
+          PYTHONPATH: .:./backend
           DATABASE_URL: sqlite:///./test.db
           JWT_SECRET: supersecret-demo-jwt-key-brandguard-2026
           DEMO_MODE: true

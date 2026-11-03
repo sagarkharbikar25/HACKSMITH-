@@ -371,7 +371,7 @@ Codified in `app/services/embedding_service.py` & `insights_service.py`:
 
 ### 5.7 Database Layer & Dual-Mode Persistence
 Configured in `app/db.py`:
-- **Local Dev / Offline Mode**: Uses SQLite (`sqlite:///./brandguard.db`) with `check_same_thread=False` and JSON-fallback embedding storage.
+- **Local Dev / Offline Mode**: Uses SQLite (`sqlite:///./brandora.db`) with `check_same_thread=False` and JSON-fallback embedding storage.
 - **Production Mode**: Connects to Supabase / Render PostgreSQL with native `pgvector` extension.
 - **Automated Startup Migrations (`db_migrate.py`)**: Idempotently inspects database tables on startup, creates missing tables, adds new columns, and backfills default values without requiring manual migrations.
 

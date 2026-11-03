@@ -211,14 +211,14 @@ Copy `.env.example` to `backend/.env`:
 DATABASE_URL=postgresql://postgres.xxx:xxx@aws-0-ap-northeast-1.pooler.supabase.com:6543/postgres?sslmode=require
 
 # Security
-JWT_SECRET=supersecret-demo-jwt-key-brandguard-2026
+JWT_SECRET=supersecret-demo-jwt-key-brandora-2026
 JWT_EXPIRE_MIN=720
 DEMO_MODE=true
 
 # Google Gemini LLM Engine
 LLM_ENABLED=false                  # Set to true for live Gemini API calls
 GEMINI_API_KEY=your_gemini_api_key
-GEMINI_MODEL=gemini-1.5-flash
+GEMINI_MODEL=gemini-3-flash-preview
 
 # SMTP Email Delivery (Gmail)
 SMTP_ENABLED=true

@@ -1,4 +1,4 @@
-name: BrandGuard AI CI/CD Pipeline
+name: Brandora AI CI/CD Pipeline
 
 on:
   push:
@@ -29,7 +29,7 @@ jobs:
         env:
           PYTHONPATH: .:./backend
           DATABASE_URL: sqlite:///./test.db
-          JWT_SECRET: supersecret-demo-jwt-key-brandguard-2026
+          JWT_SECRET: supersecret-demo-jwt-key-brandora-2026
           DEMO_MODE: true
           TESTING: 1
           LLM_ENABLED: false

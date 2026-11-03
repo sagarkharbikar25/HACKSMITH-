@@ -1,4 +1,4 @@
-# ROUND 3 — SAGAR BACKEND PLAN (BrandGuard AI)
+# ROUND 3 — SAGAR BACKEND PLAN (Brandora AI)
 **Owner:** Sagar  **Scope:** everything under `backend/`, `data/`, `.github/`, `scripts/`
 **Companion:** `ROUND3_AYUSH_FRONTEND_PLAN.md` (consumes the contract in §5 of this file)
 **Baseline:** Round 2 prototype is live (Render + Supabase Postgres pooler, FastAPI). **Nothing below may break it.**

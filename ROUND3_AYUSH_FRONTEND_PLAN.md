@@ -1,4 +1,4 @@
-# ROUND 3 — AYUSH FRONTEND PLAN (BrandGuard AI)
+# ROUND 3 — AYUSH FRONTEND PLAN (Brandora AI)
 **Owner:** Ayush  **Scope:** everything under `frontend/`  **You never edit `backend/*`.**
 **Companion:** `ROUND3_SAGAR_BACKEND_PLAN.md` — its §5 (Contract v3) is the source of truth for every type below.
 **Baseline:** Round 2 UI is live on Vercel (React 19 + TS + Tailwind, TanStack Query, 3 role modules). **Do not break it.**

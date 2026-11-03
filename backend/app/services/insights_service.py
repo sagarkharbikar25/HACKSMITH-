@@ -4,6 +4,7 @@ Detects disputed rules with high dismissal or override rates,
 clusters recurrence signals, generates refined wording suggestions,
 and handles adopt / dismiss / undo governance.
 """
+import os
 import re
 import hashlib
 from typing import List, Dict, Any, Optional
@@ -150,7 +151,7 @@ def find_disputed_rules(db: Session) -> List[Dict[str, Any]]:
                 "last_reviewed": str(rule.last_reviewed) if rule.last_reviewed else None
             })
 
-    if not disputed and settings.DEMO_MODE:
+    if not disputed and settings.DEMO_MODE and os.getenv("TESTING") != "1":
         demo_rules_meta = [
             ("CLAIM-01", 14, 6, 1, 0.429),
             ("TONE-03", 11, 5, 0, 0.455),

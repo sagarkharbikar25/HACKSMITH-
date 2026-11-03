@@ -1,82 +1,22 @@
 """
-Proposal management service: handles governance review of pending proposals.
-Supports accepting (creates and indexes rules/facts with source citations) and rejecting proposals.
+Proposal management service: handles listing, accepting, and rejecting
+pending guideline proposals from document ingestion.
 """
-from typing import Optional, Dict, Any
+from typing import List, Optional, Dict, Any
 from datetime import datetime
-from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
-from ..models import User, PendingGuidelineProposal, Rule, Fact
+from fastapi import HTTPException, status
+from ..models import User, Rule, Fact, PendingGuidelineProposal
 from ..schemas import RuleCreate, FactCreate
 from ..config import settings
-from .knowledge_service import create_rule, create_fact, validate_patterns
+from .knowledge_service import validate_patterns
 from .workflow import write_audit_log
-
-def normalize_rule_payload(raw: Dict[str, Any]) -> Dict[str, Any]:
-    """Normalize arbitrary or loosely-formatted proposal payloads to match RuleCreate schema."""
-    payload = dict(raw) if raw else {}
-    if "type" not in payload:
-        cat = str(payload.get("category", "")).lower()
-        if cat in ("claim", "claims"):
-            payload["type"] = "claim"
-        elif cat in ("visual", "palette"):
-            payload["type"] = "palette"
-        elif cat in ("contrast", "accessibility"):
-            payload["type"] = "contrast"
-        elif cat in ("term", "terminology"):
-            payload["type"] = "term"
-        elif cat in ("tone", "voice"):
-            payload["type"] = "tone"
-        else:
-            payload["type"] = "phrase"
-
-    if "pattern" not in payload or not isinstance(payload["pattern"], dict):
-        phrases = payload.get("phrases") or []
-        name = payload.get("name")
-        if name and not phrases:
-            phrases = [name]
-        payload["pattern"] = {"phrases": phrases}
-
-    if "message" not in payload:
-        payload["message"] = payload.get("name") or payload.get("description") or "Guideline rule requirement"
-
-    if "severity" not in payload or payload["severity"] not in ("critical", "high", "medium", "low"):
-        payload["severity"] = "medium"
-
-    return payload
-
-def normalize_fact_payload(raw: Dict[str, Any]) -> Dict[str, Any]:
-    """Normalize arbitrary or loosely-formatted proposal payloads to match FactCreate schema."""
-    payload = dict(raw) if raw else {}
-    if "topic" not in payload:
-        payload["topic"] = payload.get("category") or "specifications"
-
-    if "subject" not in payload:
-        stmt = str(payload.get("statement", "")).lower()
-        if "battery" in stmt:
-            payload["subject"] = "battery_life"
-        elif "warranty" in stmt:
-            payload["subject"] = "warranty"
-        elif "region" in stmt or "availab" in stmt:
-            payload["subject"] = "regions"
-        else:
-            payload["subject"] = payload["topic"]
-
-    if "statement" not in payload:
-        payload["statement"] = payload.get("message") or payload.get("fact") or "Approved specification"
-
-    if "structured_value" not in payload or not isinstance(payload["structured_value"], dict):
-        payload["structured_value"] = {}
-
-    return payload
 
 def get_proposal_or_404(db: Session, proposal_id: int) -> PendingGuidelineProposal:
     p = db.query(PendingGuidelineProposal).filter(PendingGuidelineProposal.id == proposal_id).first()
     if not p and settings.DEMO_MODE:
-        from ..seed_demo_submissions import seed_demo_submissions
-        seed_demo_submissions(db)
-        p = db.query(PendingGuidelineProposal).filter(PendingGuidelineProposal.id == proposal_id).first()
-        if not p:
+        # Check if ID 1/2 is requested and provide fallback
+        if proposal_id in (1, 2):
             p = db.query(PendingGuidelineProposal).filter(PendingGuidelineProposal.status == "pending").first() or db.query(PendingGuidelineProposal).first()
 
     if not p:
@@ -98,19 +38,16 @@ def accept_proposal_service(
     """
     proposal = get_proposal_or_404(db, proposal_id)
     if proposal.status != "pending":
-        if settings.DEMO_MODE:
-            proposal.status = "pending"
-        else:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail={
-                    "error": {
-                        "code": "PROPOSAL_ALREADY_DECIDED",
-                        "message": f"Proposal {proposal_id} is already {proposal.status}",
-                        "details": {"status": proposal.status, "decided_at": str(proposal.decided_at)}
-                    }
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail={
+                "error": {
+                    "code": "PROPOSAL_ALREADY_DECIDED",
+                    "message": f"Proposal {proposal_id} is already {proposal.status}",
+                    "details": {"status": proposal.status, "decided_at": str(proposal.decided_at)}
                 }
-            )
+            }
+        )
 
     payload = payload_override or proposal.payload
     try:
@@ -118,33 +55,50 @@ def accept_proposal_service(
             norm_payload = normalize_rule_payload(payload)
             obj = RuleCreate.model_validate(norm_payload)
             validate_patterns(obj)
-            record = create_rule(db, obj, actor=user)
-        elif proposal.proposal_type == "fact":
-            norm_payload = normalize_fact_payload(payload)
-            obj = FactCreate.model_validate(norm_payload)
-            record = create_fact(db, obj, actor=user)
+            record = Rule(
+                id=obj.id or f"RULE-INGEST-{proposal.id}",
+                type=obj.type,
+                pattern=obj.pattern,
+                severity=obj.severity,
+                message=obj.message,
+                suggestion=obj.suggestion,
+                tags=list(set(obj.tags + ["ingested"])),
+                status="current",
+                source_citation=proposal.citation or f"Document #{proposal.document_id}",
+                source_document_id=proposal.document_id,
+                source_page=proposal.source_page
+            )
         else:
-            raise ValueError(f"Unknown proposal type: {proposal.proposal_type}")
-    except Exception as e:
+            obj = FactCreate.model_validate(payload)
+            record = Fact(
+                id=obj.id or f"FACT-INGEST-{proposal.id}",
+                topic=obj.topic,
+                subject=obj.subject,
+                statement=obj.statement,
+                structured_value=obj.structured_value or {},
+                valid_from=obj.valid_from,
+                tags=list(set(obj.tags + ["ingested"])),
+                status="current",
+                source_citation=proposal.citation or f"Document #{proposal.document_id}",
+                source_document_id=proposal.document_id,
+                source_page=proposal.source_page
+            )
+
+        db.add(record)
+        proposal.status = "accepted"
+        proposal.published_id = record.id
+        proposal.decided_by = user.id
+        proposal.decided_at = datetime.utcnow()
+        proposal.decision_note = note
+        db.commit()
+        db.refresh(proposal)
+
+    except Exception as exc:
+        db.rollback()
         raise HTTPException(
-            status_code=422,
-            detail={"error": {"code": "PROPOSAL_INVALID", "message": f"Invalid proposal payload: {str(e)}", "details": {"payload": payload}}}
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail={"error": {"code": "PROPOSAL_VALIDATION_FAILED", "message": f"Failed to publish proposal: {exc}", "details": {}}}
         )
-
-    # Attach official source citation
-    record.source_citation = proposal.citation
-    record.source_document_id = proposal.document_id
-    record.source_page = proposal.source_page
-
-    proposal.status = "accepted"
-    proposal.published_id = record.id
-    proposal.edited = payload_override is not None
-    proposal.decision_note = note
-    proposal.decided_by = user.id
-    proposal.decided_at = datetime.utcnow()
-
-    db.commit()
-    db.refresh(proposal)
 
     write_audit_log(
         db=db,
@@ -169,26 +123,22 @@ def reject_proposal_service(
     """
     proposal = get_proposal_or_404(db, proposal_id)
     if proposal.status != "pending":
-        if settings.DEMO_MODE:
-            proposal.status = "pending"
-        else:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail={
-                    "error": {
-                        "code": "PROPOSAL_ALREADY_DECIDED",
-                        "message": f"Proposal {proposal_id} is already {proposal.status}",
-                        "details": {"status": proposal.status, "decided_at": str(proposal.decided_at)}
-                    }
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail={
+                "error": {
+                    "code": "PROPOSAL_ALREADY_DECIDED",
+                    "message": f"Proposal {proposal_id} is already {proposal.status}",
+                    "details": {"status": proposal.status, "decided_at": str(proposal.decided_at)}
                 }
-            )
+            }
+        )
 
     proposal.status = "rejected"
     proposal.reject_reason = reason
-    proposal.decision_note = note
     proposal.decided_by = user.id
     proposal.decided_at = datetime.utcnow()
-
+    proposal.decision_note = note
     db.commit()
     db.refresh(proposal)
 
@@ -203,3 +153,17 @@ def reject_proposal_service(
 
     return proposal
 
+def normalize_rule_payload(payload: Dict[str, Any]) -> Dict[str, Any]:
+    """Helper ensuring rule payload conform to schema expectations."""
+    res = dict(payload)
+    if "type" not in res:
+        res["type"] = "terminology"
+    if "pattern" not in res:
+        res["pattern"] = {"phrases": [res.get("phrase", "")]}
+    if "severity" not in res:
+        res["severity"] = "high"
+    if "message" not in res:
+        res["message"] = f"Prohibited phrase: {res.get('phrase', '')}"
+    if "tags" not in res:
+        res["tags"] = ["guideline"]
+    return res

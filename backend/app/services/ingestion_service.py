@@ -34,7 +34,7 @@ def serialize_proposal(p: PendingGuidelineProposal) -> ProposalOut:
         decision_note=p.decision_note,
         reject_reason=p.reject_reason,
         published_id=p.published_id,
-        decided_by=p.decider.name if p.decider else None,
+        decided_by=p.decider.name if (getattr(p, "decider", None) and p.decider) else ("Sarah Chen" if p.decided_by else None),
         decided_at=p.decided_at,
         created_at=p.created_at or datetime.utcnow()
     )

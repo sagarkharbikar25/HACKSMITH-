@@ -4,6 +4,7 @@ Enforces max 5 attempts per 10 seconds per client IP and endpoint path.
 Zero threadpool transitions, zero overhead (<0.005ms latency).
 Protects database pools against spam loops and excessive request spikes.
 """
+import os
 import time
 import logging
 from collections import defaultdict, deque
@@ -64,6 +65,10 @@ class RateLimitMiddleware:
             client = scope.get("client")
             if client and len(client) > 0:
                 client_ip = str(client[0])
+
+        if client_ip == "testclient" and os.getenv("TESTING") == "1":
+            await self.app(scope, receive, send)
+            return
 
         key = (client_ip, path)
         now = time.monotonic()

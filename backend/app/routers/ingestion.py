@@ -65,6 +65,11 @@ async def ingest_document(
                 detail={"error": {"code": "FILE_REQUIRED", "message": "A guideline document file (PDF/DOCX) is required.", "details": {}}}
             )
 
+    # Sanitize filename against directory traversal & null-bytes
+    import re
+    clean_filename = os.path.basename((filename or "guideline.pdf").replace("\\", "/")).replace("\x00", "")
+    filename = re.sub(r"[^a-zA-Z0-9_.-]", "_", clean_filename).strip("._") or "guideline.pdf"
+
     if not title or not title.strip():
         title = filename
 
@@ -72,7 +77,7 @@ async def ingest_document(
     max_bytes = settings.INGEST_MAX_MB * 1024 * 1024
     if len(raw_bytes) > max_bytes:
         raise HTTPException(
-            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            status_code=413,
             detail={"error": {"code": "FILE_TOO_LARGE", "message": f"Document exceeds max size of {settings.INGEST_MAX_MB}MB", "details": {"size": len(raw_bytes)}}}
         )
 

@@ -78,6 +78,11 @@ async def upload_asset(
                 detail={"error": {"code": "FILE_REQUIRED", "message": "An image file is required for asset upload.", "details": {}}}
             )
 
+    # Sanitize filename against directory traversal & null-bytes
+    import re
+    clean_filename = os.path.basename((filename or "asset.png").replace("\\", "/")).replace("\x00", "")
+    filename = re.sub(r"[^a-zA-Z0-9_.-]", "_", clean_filename).strip("._") or "asset.png"
+
     asset = process_and_save_asset(
         db=db,
         submission_id=id,

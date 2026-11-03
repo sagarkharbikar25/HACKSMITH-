@@ -107,16 +107,27 @@ async def generic_exception_handler(request: Request, exc: Exception):
         }
     )
 
+_cached_emb_count = 0
+_last_emb_check = 0.0
+
+def _get_embedding_count(db: Session) -> int:
+    global _cached_emb_count, _last_emb_check
+    import time
+    now = time.monotonic()
+    if now - _last_emb_check < 30.0:
+        return _cached_emb_count
+    try:
+        from .models import Embedding
+        _cached_emb_count = db.query(Embedding).count()
+        _last_emb_check = now
+    except Exception:
+        pass
+    return _cached_emb_count
+
 # Health Check (Both /health and /api/health)
 @app.get("/health")
 @app.get("/api/health")
 def health_check(db: Session = Depends(get_db)):
-    from .models import Embedding
-    try:
-        emb_count = db.query(Embedding).count()
-    except Exception:
-        emb_count = 0
-
     return {
         "status": "ok",
         "db": "connected",
@@ -127,7 +138,7 @@ def health_check(db: Session = Depends(get_db)):
             "vision": settings.VISION_ENABLED,
             "semantic": settings.SEMANTIC_ENABLED,
             "gap_analysis": settings.GAP_ANALYSIS_ENABLED,
-            "embeddings_indexed": emb_count
+            "embeddings_indexed": _get_embedding_count(db)
         }
     }
 
@@ -135,18 +146,12 @@ def health_check(db: Session = Depends(get_db)):
 @app.get("/health.round3")
 @app.get("/api/health.round3")
 def health_round3(db: Session = Depends(get_db)):
-    from .models import Embedding
-    try:
-        emb_count = db.query(Embedding).count()
-    except Exception:
-        emb_count = 0
-
     return {
         "ingestion": settings.INGESTION_ENABLED,
         "vision": settings.VISION_ENABLED,
         "semantic": settings.SEMANTIC_ENABLED,
         "gap_analysis": settings.GAP_ANALYSIS_ENABLED,
-        "embeddings_indexed": emb_count
+        "embeddings_indexed": _get_embedding_count(db)
     }
 
 # Register Routers under /api

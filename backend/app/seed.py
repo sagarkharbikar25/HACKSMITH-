@@ -10,7 +10,7 @@ from .models import (
     User, Rule, Fact, Asset, Submission, Version, Finding,
     Review, Comment, AuditLog,
     Embedding, CreativeAsset, AssetFinding, GuidelineDocument,
-    PendingGuidelineProposal, RuleWordingSuggestion
+    PendingGuidelineProposal, RuleWordingSuggestion, PasswordResetToken
 )
 from .security import hash_password
 
@@ -32,24 +32,28 @@ def seed_database(db: Session, force_reset: bool = False):
     """
     if force_reset:
         # Child visual findings and creative assets
-        db.query(AssetFinding).delete()
-        db.query(CreativeAsset).delete()
+        db.query(AssetFinding).delete(synchronize_session=False)
+        db.query(CreativeAsset).delete(synchronize_session=False)
         # Knowledge ingestion & proposals
-        db.query(PendingGuidelineProposal).delete()
-        db.query(GuidelineDocument).delete()
-        db.query(RuleWordingSuggestion).delete()
-        db.query(Embedding).delete()
+        db.query(PendingGuidelineProposal).delete(synchronize_session=False)
+        db.query(GuidelineDocument).delete(synchronize_session=False)
+        db.query(RuleWordingSuggestion).delete(synchronize_session=False)
+        db.query(Embedding).delete(synchronize_session=False)
         # Reviews and comments MUST be deleted before versions and submissions
-        db.query(Review).delete()
-        db.query(Comment).delete()
-        db.query(Finding).delete()
-        db.query(Version).delete()
-        db.query(Submission).delete()
-        db.query(AuditLog).delete()
+        db.query(Review).delete(synchronize_session=False)
+        db.query(Comment).delete(synchronize_session=False)
+        db.query(Finding).delete(synchronize_session=False)
+        db.query(Version).delete(synchronize_session=False)
+        db.query(PasswordResetToken).delete(synchronize_session=False)
+        db.commit()
+
+        # Submissions and audit logs
+        db.query(Submission).delete(synchronize_session=False)
+        db.query(AuditLog).delete(synchronize_session=False)
         # Rules, facts, assets
-        db.query(Rule).delete()
-        db.query(Fact).delete()
-        db.query(Asset).delete()
+        db.query(Rule).delete(synchronize_session=False)
+        db.query(Fact).delete(synchronize_session=False)
+        db.query(Asset).delete(synchronize_session=False)
         db.commit()
 
     # 1. Seed Users

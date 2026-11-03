@@ -6,9 +6,9 @@ import os
 import difflib
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session, selectinload
+from sqlalchemy.orm import Session, selectinload, defer
 from ..db import get_db
-from ..models import User, Submission, Version, Finding, Rule, Fact, CreativeAsset
+from ..models import User, Submission, Version, Finding, Rule, Fact, CreativeAsset, AuditLog
 from ..schemas import (
     SubmissionCreate, SubmissionOut, SubmissionDetailOut,
     VersionCreate, VersionOut, AuditResultOut, FindingOut, Excerpt, EvidenceRef
@@ -75,7 +75,7 @@ def create_submission(
     user: User = Depends(require_roles("creator", "agency")),
     db: Session = Depends(get_db)
 ):
-    # 1. Create Submission row
+    # 1. Create Submission row and initial Version in a single batch
     sub = Submission(
         title=payload.title,
         content_type=payload.content_type,
@@ -83,8 +83,7 @@ def create_submission(
         status="draft"
     )
     db.add(sub)
-    db.commit()
-    db.refresh(sub)
+    db.flush()
 
     # 2. Create Version 1 (does NOT audit automatically)
     v1 = Version(
@@ -94,11 +93,11 @@ def create_submission(
         engines={"rules": "pending", "llm": "disabled"}
     )
     db.add(v1)
-    db.commit()
-    db.refresh(v1)
+    db.flush()
 
-    write_audit_log(db, actor_id=user.id, action="submission.create", object_type="submission", object_id=str(sub.id))
-    write_audit_log(db, actor_id=user.id, action="version.create", object_type="version", object_id=str(v1.id))
+    db.add(AuditLog(actor_id=user.id, action="submission.create", object_type="submission", object_id=str(sub.id)))
+    db.add(AuditLog(actor_id=user.id, action="version.create", object_type="version", object_id=str(v1.id)))
+    db.commit()
 
     return get_submission(sub.id, user, db)
 
@@ -112,7 +111,7 @@ def get_submission(
         selectinload(Submission.versions).selectinload(Version.findings),
         selectinload(Submission.reviews),
         selectinload(Submission.comments),
-        selectinload(Submission.creative_assets).selectinload(CreativeAsset.findings)
+        selectinload(Submission.creative_assets).defer(CreativeAsset.data).selectinload(CreativeAsset.findings)
     ).filter(Submission.id == id).first()
     if not sub:
         raise HTTPException(

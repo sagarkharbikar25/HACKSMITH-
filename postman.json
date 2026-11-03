@@ -234,6 +234,98 @@
               ]
             }
           }
+        },
+        {
+          "name": "4. Forgot Password - Request Reset Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "pm.test('Has valid reset_token', function () {",
+                  "    pm.expect(jsonData.reset_token).to.be.a('string');",
+                  "    pm.expect(jsonData.reset_token.length).to.be.above(10);",
+                  "});",
+                  "if (jsonData.reset_token) {",
+                  "    pm.collectionVariables.set('reset_token', jsonData.reset_token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"creator@lumora.demo\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/forgot-password",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "forgot-password"
+              ]
+            }
+          }
+        },
+        {
+          "name": "5. Reset Password - Complete Reset Flow",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "pm.test('Password updated confirmation', function () {",
+                  "    pm.expect(jsonData.message).to.include('successfully');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{reset_token}}\",\n  \"new_password\": \"demo1234\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/reset-password",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "reset-password"
+              ]
+            }
+          }
         }
       ]
     },
@@ -568,6 +660,57 @@
                 "api",
                 "assets",
                 "{{asset_id}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Security Defense - Reject Non-Image Executable Script",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 415 Unsupported Media Type', function () {",
+                  "    pm.response.to.have.status(415);",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "pm.test('Error code is UNSUPPORTED_FILE_TYPE', function () {",
+                  "    pm.expect(jsonData.error.code).to.eql('UNSUPPORTED_FILE_TYPE');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{creator_token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "data/seed/assets/malicious_script.php"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/submissions/{{submission_id}}/assets",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "submissions",
+                "{{submission_id}}",
+                "assets"
               ]
             }
           }

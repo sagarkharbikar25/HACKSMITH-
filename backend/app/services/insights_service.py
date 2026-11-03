@@ -101,17 +101,23 @@ def serialize_gap_suggestion(s: RuleWordingSuggestion, db: Session) -> GapSugges
     rule = db.query(Rule).filter(Rule.id == s.rule_id).first()
     rule_label = rule.message if rule else s.rule_id
     clusters = [GapCluster.model_validate(c) for c in (s.clusters or [])]
+
+    current_data = s.current_wording if isinstance(s.current_wording, dict) else {}
+    if not current_data and rule:
+        current_data = {"message": rule.message, "suggestion": rule.suggestion, "patterns": rule.pattern or {}}
+    proposed_data = s.proposed_wording if isinstance(s.proposed_wording, dict) else {}
+
     return GapSuggestionOut(
         id=s.id,
         rule_id=s.rule_id,
         rule_label=rule_label,
         stats=s.stats or {},
         clusters=clusters,
-        current_wording=RuleWording(**s.current_wording),
-        proposed_wording=RuleWording(**s.proposed_wording),
-        rationale=s.rationale,
+        current_wording=RuleWording.model_validate(current_data),
+        proposed_wording=RuleWording.model_validate(proposed_data),
+        rationale=s.rationale or "",
         generator=s.generator or "ai",
-        status=s.status,
+        status=s.status or "pending",
         created_at=s.created_at or datetime.utcnow()
     )
 
@@ -145,16 +151,33 @@ def find_disputed_rules(db: Session) -> List[Dict[str, Any]]:
             })
 
     if not disputed and settings.DEMO_MODE:
-        claim_rule = db.query(Rule).filter(Rule.id == "CLAIM-01").first() or db.query(Rule).first()
-        if claim_rule:
-            disputed.append({
-                "rule": claim_rule,
-                "fired": 14,
-                "dismissed": 6,
-                "overridden": 1,
-                "dismissal_rate": 0.429,
-                "last_reviewed": str(claim_rule.last_reviewed) if claim_rule.last_reviewed else None
-            })
+        demo_rules_meta = [
+            ("CLAIM-01", 14, 6, 1, 0.429),
+            ("TONE-03", 11, 5, 0, 0.455),
+            ("TERM-02", 9, 4, 1, 0.444),
+        ]
+        for rid, fired, dismissed, overridden, rate in demo_rules_meta:
+            r_obj = db.query(Rule).filter(Rule.id == rid).first()
+            if r_obj:
+                disputed.append({
+                    "rule": r_obj,
+                    "fired": fired,
+                    "dismissed": dismissed,
+                    "overridden": overridden,
+                    "dismissal_rate": rate,
+                    "last_reviewed": str(r_obj.last_reviewed) if r_obj.last_reviewed else None
+                })
+        if not disputed:
+            first_r = db.query(Rule).first()
+            if first_r:
+                disputed.append({
+                    "rule": first_r,
+                    "fired": 14,
+                    "dismissed": 6,
+                    "overridden": 1,
+                    "dismissal_rate": 0.429,
+                    "last_reviewed": str(first_r.last_reviewed) if first_r.last_reviewed else None
+                })
 
     return disputed
 
@@ -177,10 +200,21 @@ def collect_signals(db: Session, rule_id: str) -> List[Dict[str, str]]:
             break
 
     if not signals and settings.DEMO_MODE:
-        signals = [
-            {"excerpt": "world's best lamp", "reason": "Industry award substantiated"},
-            {"excerpt": "finest lighting in the market", "reason": "Approved seasonal promotion"}
-        ]
+        if rule_id == "TONE-03":
+            signals = [
+                {"excerpt": "limited time introductory offer", "reason": "Standard seasonal campaign copy"},
+                {"excerpt": "act fast while stocks last", "reason": "Inventory clearance notice"}
+            ]
+        elif rule_id == "TERM-02":
+            signals = [
+                {"excerpt": "cheap alternative to designer lighting", "reason": "Creator wanted to emphasize high value"},
+                {"excerpt": "budget smart lamp", "reason": "Entry-tier market positioning"}
+            ]
+        else:
+            signals = [
+                {"excerpt": "world's best lamp", "reason": "Industry award substantiated"},
+                {"excerpt": "finest lighting in the market", "reason": "Approved seasonal promotion"}
+            ]
 
     return signals
 

@@ -25,6 +25,16 @@ def validate_patterns(obj: RuleCreate) -> None:
         if min_ratio <= 1.0 or min_ratio > 21.0:
             raise ValueError(f"Invalid WCAG contrast ratio: {min_ratio}")
 
+    regex_str = pattern.get("regex")
+    if regex_str:
+        if len(regex_str) > 200:
+            raise ValueError("Regex pattern exceeds maximum length of 200 characters.")
+        try:
+            import re
+            re.compile(regex_str)
+        except Exception as e:
+            raise ValueError(f"Invalid regular expression pattern: {e}")
+
 def create_rule(db: Session, obj: RuleCreate, actor: Optional[User] = None) -> Rule:
     """Creates a new rule, persists it, and triggers vector embedding indexing."""
     rule_id = obj.id

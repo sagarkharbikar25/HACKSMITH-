@@ -1,6 +1,7 @@
 """
 Security, password hashing, and JWT generation.
 """
+import uuid
 from datetime import datetime, timedelta
 from typing import Optional, Dict, Any
 import hashlib
@@ -24,8 +25,13 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 
 def create_access_token(data: Dict[str, Any], expires_delta: Optional[timedelta] = None) -> str:
     to_encode = data.copy()
-    expire = datetime.utcnow() + (expires_delta or timedelta(minutes=settings.JWT_EXPIRE_MIN))
-    to_encode.update({"exp": expire})
+    now = datetime.utcnow()
+    expire = now + (expires_delta or timedelta(minutes=settings.JWT_EXPIRE_MIN))
+    to_encode.update({
+        "exp": expire,
+        "iat": now,
+        "jti": str(uuid.uuid4()),
+    })
     return jwt.encode(to_encode, settings.JWT_SECRET, algorithm=settings.JWT_ALGORITHM)
 
 def decode_access_token(token: str) -> Optional[Dict[str, Any]]:

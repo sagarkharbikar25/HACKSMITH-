@@ -29,6 +29,21 @@ class TokenResponse(BaseModel):
     token: str
     user: UserOut
 
+class ForgotPasswordRequest(BaseModel):
+    email: str
+
+class ForgotPasswordResponse(BaseModel):
+    message: str
+    reset_token: Optional[str] = None
+    expires_in_minutes: int = 15
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    new_password: str = Field(min_length=6, max_length=128)
+
+class ResetPasswordResponse(BaseModel):
+    message: str
+
 # --- Knowledge & Evidence ---
 class SourceInfo(BaseModel):
     citation: str
@@ -409,6 +424,8 @@ class RuleWording(BaseModel):
     suggestion: Optional[str] = None
     patterns: Dict[str, Any] = {}
     added_exceptions: List[str] = []
+
+    model_config = {"extra": "ignore"}
 
 class GapSuggestionOut(BaseModel):
     id: int

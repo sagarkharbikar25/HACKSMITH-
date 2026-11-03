@@ -21,19 +21,26 @@ elif db_url.startswith("postgresql://") and not db_url.startswith("postgresql+")
 connect_args = {}
 if db_url.startswith("sqlite"):
     connect_args = {"check_same_thread": False}
+else:
+    connect_args = {
+        "keepalives": 1,
+        "keepalives_idle": 30,
+        "keepalives_interval": 10,
+        "keepalives_count": 5,
+    }
 
 engine_kwargs = {
     "connect_args": connect_args,
-    "pool_pre_ping": True,
+    "pool_pre_ping": False,
 }
 
 # High-performance connection pool configuration for PostgreSQL (Supabase / Render)
 if not db_url.startswith("sqlite"):
     engine_kwargs.update({
-        "pool_size": 15,
-        "max_overflow": 25,
-        "pool_recycle": 300,
-        "pool_timeout": 15,
+        "pool_size": 20,
+        "max_overflow": 20,
+        "pool_recycle": 600,
+        "pool_timeout": 30,
     })
 
 engine = create_engine(

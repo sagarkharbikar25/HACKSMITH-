@@ -29,7 +29,7 @@ def validate_image_file(data: bytes) -> str:
     """Verifies file headers against supported image formats without trusting content-type."""
     if len(data) > settings.ASSET_MAX_MB * 1024 * 1024:
         raise HTTPException(
-            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            status_code=413,
             detail={"error": {"code": "FILE_TOO_LARGE", "message": f"Image exceeds maximum size of {settings.ASSET_MAX_MB}MB", "details": {}}}
         )
 

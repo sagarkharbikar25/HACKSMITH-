@@ -4,6 +4,7 @@ invokes semantic similarity engine, invokes optional LLM adapter,
 merges findings with priority (Deterministic > Semantic > LLM),
 carries over dismissals, persists to database, and writes audit event.
 """
+import time
 from typing import List, Dict, Any, Optional
 from datetime import datetime
 from sqlalchemy.orm import Session
@@ -17,6 +18,27 @@ from ..llm.adapter import review as llm_review
 from ..schemas import AuditResultOut, AuditEngines, AuditSummary, FindingOut, Excerpt, EvidenceRef, SourceInfo
 from .workflow import write_audit_log
 from .semantic_matcher import run_semantic
+
+_rules_cache = None
+_facts_cache = None
+_last_cache_time = 0.0
+
+def invalidate_knowledge_cache():
+    global _rules_cache, _facts_cache
+    _rules_cache = None
+    _facts_cache = None
+
+def get_cached_rules_and_facts(db: Session):
+    global _rules_cache, _facts_cache, _last_cache_time
+    now = time.monotonic()
+    if _rules_cache is not None and (now - _last_cache_time < 30.0):
+        return _rules_cache, _facts_cache
+    db_rules = db.query(Rule).filter(Rule.status == "current").all()
+    db_facts = db.query(Fact).all()
+    _rules_cache = [serialize_rule(r) for r in db_rules]
+    _facts_cache = [serialize_fact(f) for f in db_facts]
+    _last_cache_time = now
+    return _rules_cache, _facts_cache
 
 def serialize_rule(r: Rule) -> Dict[str, Any]:
     source = None
@@ -69,12 +91,8 @@ def run_audit(db: Session, version: Version, actor_id: Optional[int] = None) -> 
     """
     body = version.body
 
-    # 1. Fetch active rules and facts from DB
-    db_rules = db.query(Rule).filter(Rule.status == "current").all()
-    db_facts = db.query(Fact).all()
-
-    rules_data = [serialize_rule(r) for r in db_rules]
-    facts_data = [serialize_fact(f) for f in db_facts]
+    # 1. Fetch active rules and facts (cached in-memory for 30s)
+    rules_data, facts_data = get_cached_rules_and_facts(db)
     substantiations = [f for f in facts_data if f.get("kind") == "substantiation"]
     general_facts = [f for f in facts_data if f.get("kind") != "substantiation"]
 

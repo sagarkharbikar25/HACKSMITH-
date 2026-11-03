@@ -1,14 +1,17 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowRight, Lock, Mail, User as UserIcon, Shield, ChevronDown, KeyRound, AlertCircle } from "lucide-react";
 import { motion } from "motion/react";
 import { useAuth, SYSTEM_CREDENTIALS, getRoleHomeRoute } from "../auth/AuthContext";
 import { BrandSymbol } from "../components/BrandLogo";
+import { ForgotPasswordModal } from "../components/ForgotPasswordModal";
 import type { Role } from "../types";
 
 export const Login: React.FC = () => {
   const { login, register, user } = useAuth();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const resetTokenFromUrl = searchParams.get("token");
 
   // If already logged in, redirect to user's home module
   React.useEffect(() => {
@@ -33,6 +36,13 @@ export const Login: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showDemoDrawer, setShowDemoDrawer] = useState(true);
+  const [showForgotModal, setShowForgotModal] = useState(false);
+
+  React.useEffect(() => {
+    if (resetTokenFromUrl) {
+      setShowForgotModal(true);
+    }
+  }, [resetTokenFromUrl]);
 
   const handleSignIn = async (e?: React.FormEvent, customEmail?: string, customPass?: string) => {
     if (e) e.preventDefault();
@@ -188,7 +198,16 @@ export const Login: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-muted block mb-1 font-medium">Password</label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-muted font-medium">Password</label>
+                  <button
+                    type="button"
+                    onClick={() => setShowForgotModal(true)}
+                    className="text-[11px] text-primary/80 hover:text-primary transition-colors font-mono cursor-pointer"
+                  >
+                    Forgot password?
+                  </button>
+                </div>
                 <div className="relative">
                   <Lock size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
                   <input
@@ -247,7 +266,16 @@ export const Login: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-muted block mb-1 font-medium">Password</label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-muted font-medium">Password</label>
+                  <button
+                    type="button"
+                    onClick={() => setShowForgotModal(true)}
+                    className="text-[11px] text-primary/80 hover:text-primary transition-colors font-mono cursor-pointer"
+                  >
+                    Forgot password?
+                  </button>
+                </div>
                 <div className="relative">
                   <Lock size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
                   <input
@@ -356,6 +384,21 @@ export const Login: React.FC = () => {
           </div>
         </div>
       </motion.div>
+      <ForgotPasswordModal
+        isOpen={showForgotModal}
+        initialToken={resetTokenFromUrl}
+        onClose={() => {
+          setShowForgotModal(false);
+          if (searchParams.has("token")) {
+            searchParams.delete("token");
+            setSearchParams(searchParams, { replace: true });
+          }
+        }}
+        onPasswordResetSuccess={(resetEmail) => {
+          if (resetEmail) setLoginEmail(resetEmail); setActiveTab("signin"); if (searchParams.has("token")) { searchParams.delete("token"); setSearchParams(searchParams, { replace: true }); }
+          setError(null);
+        }}
+      />
     </div>
   );
 };

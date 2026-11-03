@@ -95,10 +95,11 @@ def extract_heuristic_proposals(chunk: Chunk, document_title: str) -> List[Propo
     candidates: List[ProposalCandidate] = []
     text = chunk.text
 
-    # 1. Prohibitions with quoted strings: Never/Do not use "X"
+    # 1. Prohibitions with quoted strings or lists: Never/Do not use "X", Avoid using 'X'
     prohibition_patterns = [
-        re.compile(r'(?:never|do not|don\'t|avoid|must not)\s+(?:use|refer to|describe(?:\s+\w+)?\s+as)\s+[“"\'‘]([^”"\'’]+)[”"\'’][^.\n]*', re.IGNORECASE),
-        re.compile(r'[“"\'‘]([^”"\'’]+)[”"\'’]\s+is\s+(?:strictly\s+)?prohibited', re.IGNORECASE),
+        re.compile(r'(?:never|do not|don\'t|avoid|must not)\s+(?:using|use|refer(?:ring)?\s+to|describe|describing)(?:\s+[\w\s]{1,30}?\s+as)?\s+[\u201c"\'\u201d]([^\u201c"\'\u201d]+)[\u201c"\'\u201d][^.\n]*', re.IGNORECASE),
+        re.compile(r'[\u201c"\'\u201d]([^\u201c"\'\u201d]+)[\u201c"\'\u201d]\s+is\s+(?:strictly\s+)?(?:prohibited|forbidden|banned)', re.IGNORECASE),
+        re.compile(r'(?:prohibited|banned|forbidden|avoid)(?:\s+terms|\s+words|\s+phrases)?:\s*([^\n.]+)', re.IGNORECASE),
     ]
 
     for pat in prohibition_patterns:

@@ -2,7 +2,7 @@
  * api/ingestion.ts — Knowledge document ingestion endpoints (Round 3)
  */
 
-import { apiUpload, apiDelete, ApiError } from "./client";
+import { apiUpload, apiDelete, ApiError, BASE_URL } from "./client";
 import type {
   DocumentOut,
   ProposalOut,
@@ -11,9 +11,6 @@ import type {
   ProposalType,
 } from "../types/round3";
 
-const BASE_URL = (import.meta.env.VITE_API_URL || "/api")
-  .trim()
-  .replace(/\/+$/, "");
 
 async function apiFetch<T>(
   path: string,

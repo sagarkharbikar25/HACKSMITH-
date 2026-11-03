@@ -9,10 +9,8 @@
 
 import { useQuery } from "@tanstack/react-query";
 import type { Round3Health } from "../types/round3";
+import { BASE_URL } from "../api/client";
 
-const BASE_URL = (import.meta.env.VITE_API_URL || "/api")
-  .trim()
-  .replace(/\/+$/, "");
 
 const DEFAULT_FLAGS: Round3Health = {
   ingestion: false,

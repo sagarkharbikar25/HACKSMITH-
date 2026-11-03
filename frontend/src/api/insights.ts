@@ -3,13 +3,10 @@
  * Extends the existing insights.getSummary call in client.ts.
  */
 
-import { ApiError } from "./client";
+import { ApiError, BASE_URL } from "./client";
 import type { GapSuggestionOut, AdoptWordingIn } from "../types/round3";
 import type { InsightsData } from "../types";
 
-const BASE_URL = (import.meta.env.VITE_API_URL || "/api")
-  .trim()
-  .replace(/\/+$/, "");
 
 async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
   const token = sessionStorage.getItem("brandguard_token");

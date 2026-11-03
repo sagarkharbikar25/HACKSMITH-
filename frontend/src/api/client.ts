@@ -13,7 +13,7 @@ import type {
 } from "../types";
 
 const rawBaseUrl = (import.meta.env.VITE_API_URL || "/api").trim().replace(/\/+$/, "");
-const BASE_URL =
+export const BASE_URL =
   rawBaseUrl.startsWith("http") && !rawBaseUrl.endsWith("/api")
     ? `${rawBaseUrl}/api`
     : rawBaseUrl;

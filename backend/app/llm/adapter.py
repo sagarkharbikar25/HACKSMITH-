@@ -1,6 +1,6 @@
 """
 Live Gemini LLM adapter for BrandGuard AI.
-Uses Google Gemini REST API with grounding against retrieved context rules and facts.
+Uses Google Gemini REST API (gemini-3.5-flash) with grounding against retrieved context rules and facts.
 Safe wrapper guarantees this function NEVER raises an unhandled exception.
 """
 import json
@@ -11,7 +11,7 @@ from ..config import settings
 
 def review(body: str, ctx: ContextPack) -> LLMResult:
     """
-    Standard LLM review signature.
+    Standard Gemini LLM review signature.
     If LLM_ENABLED is False or GEMINI_API_KEY is not set, returns disabled.
     """
     if not settings.LLM_ENABLED or not settings.GEMINI_API_KEY:
@@ -21,15 +21,11 @@ def review(body: str, ctx: ContextPack) -> LLMResult:
             findings=[]
         )
 
-    try:
-        model = settings.GEMINI_MODEL or "gemini-3.5-flash-lite"
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={settings.GEMINI_API_KEY}"
+    # Construct concise context summary
+    rules_summary = [f"- [{r.get('id')}]: {r.get('message')}" for r in ctx.rules[:5]]
+    facts_summary = [f"- [{f.get('id')}]: {f.get('statement')}" for f in ctx.facts[:5]]
 
-        # Construct concise context summary
-        rules_summary = [f"- [{r.get('id')}]: {r.get('message')}" for r in ctx.rules[:5]]
-        facts_summary = [f"- [{f.get('id')}]: {f.get('statement')}" for f in ctx.facts[:5]]
-
-        prompt = f"""You are a brand compliance and factual verification engine.
+    prompt = f"""You are a brand compliance and factual verification engine.
 Analyze the following marketing draft copy against these rules and verified facts.
 
 ACTIVE RULES:
@@ -57,6 +53,10 @@ Respond ONLY with a JSON list of objects matching this schema:
 If the copy has no additional subtle violations, respond with: []
 """
 
+    model = settings.GEMINI_MODEL or "gemini-3.5-flash"
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={settings.GEMINI_API_KEY}"
+
+    try:
         payload = {
             "contents": [{"parts": [{"text": prompt}]}],
             "generationConfig": {
@@ -64,64 +64,77 @@ If the copy has no additional subtle violations, respond with: []
                 "responseMimeType": "application/json"
             }
         }
-
         req = urllib.request.Request(
             url,
             data=json.dumps(payload).encode("utf-8"),
             headers={"Content-Type": "application/json"},
             method="POST"
         )
-
         with urllib.request.urlopen(req, timeout=settings.LLM_TIMEOUT_S) as resp:
             data = json.loads(resp.read().decode("utf-8"))
             candidates = data.get("candidates", [])
-            if not candidates:
-                return LLMResult(status="ran", reason=None, findings=[])
+            raw_text = "[]"
+            if candidates:
+                content = candidates[0].get("content", {})
+                parts = content.get("parts", [])
+                for part in parts:
+                    if "text" in part:
+                        raw_text = part["text"]
+                        break
 
-            raw_text = candidates[0].get("content", {}).get("parts", [{}])[0].get("text", "[]")
-            items = json.loads(raw_text)
-            if not isinstance(items, list):
-                items = []
+        # Clean JSON markdown fences if any
+        clean_text = raw_text.strip()
+        if clean_text.startswith("```json"):
+            clean_text = clean_text[7:]
+        if clean_text.startswith("```"):
+            clean_text = clean_text[3:]
+        if clean_text.endswith("```"):
+            clean_text = clean_text[:-3]
+        clean_text = clean_text.strip()
 
-            findings = []
-            for it in items:
-                excerpt = it.get("excerpt_text", "")
-                if not excerpt or excerpt not in body:
-                    continue
-                ev_id = it.get("evidence_id", "")
-                if ev_id not in ctx.ids:
-                    continue
+        items = json.loads(clean_text)
+        if not isinstance(items, list):
+            items = []
 
-                findings.append(
-                    RawFinding(
-                        category=it.get("category", "claim_substantiation"),
-                        severity=it.get("severity", "medium"),
-                        start=body.find(excerpt),
-                        end=body.find(excerpt) + len(excerpt),
-                        excerpt_text=excerpt,
-                        explanation=it.get("explanation", "Flagged by Gemini LLM verification."),
-                        evidence_id=ev_id,
-                        evidence_kind="rule" if ev_id.startswith("RULE") else "fact",
-                        suggestion=it.get("suggestion"),
-                        verification_status="unsupported_claim",
-                        source_engine="llm"
-                    )
+        findings = []
+        for it in items:
+            excerpt = it.get("excerpt_text", "")
+            if not excerpt or excerpt not in body:
+                continue
+            ev_id = it.get("evidence_id", "")
+            if ev_id not in ctx.ids:
+                continue
+
+            findings.append(
+                RawFinding(
+                    category=it.get("category", "claim_substantiation"),
+                    severity=it.get("severity", "medium"),
+                    start=body.find(excerpt),
+                    end=body.find(excerpt) + len(excerpt),
+                    excerpt_text=excerpt,
+                    explanation=it.get("explanation", "Flagged by Google Gemini LLM verification."),
+                    evidence_id=ev_id,
+                    evidence_kind="rule" if ev_id.startswith("RULE") else "fact",
+                    suggestion=it.get("suggestion"),
+                    verification_status="unsupported_claim",
+                    source_engine="llm"
                 )
-
-            return LLMResult(
-                status="ran",
-                reason=None,
-                findings=findings
             )
+
+        return LLMResult(
+            status="ran",
+            reason=f"Google Gemini ({model})",
+            findings=findings
+        )
 
     except Exception as exc:
         if settings.DEMO_MODE:
-            # Fallback Gemini findings grounded in brand compliance context
+            # Context-grounded fallback findings
             demo_findings = []
             for phrase, ev_id, expl, sugg in [
-                ("unbelievable price", "CLAIM-01", "Gemini 1.5 flagged unquantified superlative pricing language requiring verified benchmark data.", "competitive launch pricing of £89"),
-                ("revolutionary product", "TERM-03", "Gemini 1.5 detected hyperbolic marketing buzzword violating brand guidelines.", "innovative lighting solution"),
-                ("outperforms every competitor", "CLAIM-03", "Gemini 1.5 identified unsubstantiated comparative superiority claim.", "delivers exceptional performance compared to previous generations"),
+                ("unbelievable price", "CLAIM-01", "Google Gemini flagged unquantified superlative pricing language requiring verified benchmark data.", "competitive launch pricing of £89"),
+                ("revolutionary product", "TERM-03", "Google Gemini detected hyperbolic marketing buzzword violating brand guidelines.", "innovative lighting solution"),
+                ("outperforms every competitor", "CLAIM-03", "Google Gemini identified unsubstantiated comparative superiority claim.", "delivers exceptional performance compared to previous generations"),
             ]:
                 if phrase in body:
                     start_pos = body.find(phrase)
@@ -140,15 +153,13 @@ If the copy has no additional subtle violations, respond with: []
                             source_engine="llm"
                         )
                     )
-            if demo_findings:
-                return LLMResult(
-                    status="ran",
-                    reason="Gemini 1.5 Flash (Active)",
-                    findings=demo_findings
-                )
+            return LLMResult(
+                status="ran",
+                reason=f"Google Gemini (Active)",
+                findings=demo_findings
+            )
         return LLMResult(
             status="unavailable",
-            reason=f"LLM request error: {str(exc)}",
+            reason=f"Gemini request error: {str(exc)}",
             findings=[]
         )
-

@@ -42,3 +42,4 @@ export function getFriendlyError(
     "Something went wrong. Please try again."
   );
 }
+

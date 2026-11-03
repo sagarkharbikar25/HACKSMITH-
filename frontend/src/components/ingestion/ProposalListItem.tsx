@@ -106,3 +106,4 @@ export const ProposalListItem: React.FC<ProposalListItemProps> = ({
     </div>
   );
 };
+

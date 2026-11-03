@@ -28,3 +28,4 @@ export const SemanticBadge: React.FC<SemanticBadgeProps> = ({
     </span>
   );
 };
+

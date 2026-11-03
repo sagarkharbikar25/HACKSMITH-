@@ -41,9 +41,10 @@ export const Workspace: React.FC = () => {
     setIsLoading(true);
     try {
       const data = await api.submissions.list();
-      setSubmissions(data);
+      setSubmissions(Array.isArray(data) ? data : []);
     } catch (err: any) {
       setError(err.message || "Failed to fetch submissions");
+      setSubmissions([]);
     } finally {
       setIsLoading(false);
     }
@@ -86,18 +87,18 @@ export const Workspace: React.FC = () => {
     }
   };
 
-  // Section 4: Status badges: Draft (muted), In review (primary), Approved (success), Revision requested (high)
-  const getStatusBadge = (status: Submission["status"]) => {
+  // Status badges: consistent size, padding, tracking-wider, with distinct tones for approved (lime) vs in_review (high/amber)
+  const getStatusBadge = (status?: Submission["status"]) => {
     switch (status) {
       case "approved":
-        return "bg-success/20 text-success border-success/40";
-      case "in_review":
         return "bg-primary/20 text-primary border-primary/40";
+      case "in_review":
+        return "bg-high/20 text-high border-high/40";
       case "revision_requested":
-        return "bg-high/20 text-high border-high/40 animate-pulse";
+        return "bg-critical/20 text-critical border-critical/40";
       case "draft":
       default:
-        return "bg-white/10 text-muted border-line";
+        return "bg-white/5 text-muted border-line";
     }
   };
 
@@ -127,9 +128,10 @@ export const Workspace: React.FC = () => {
         <div className="flex items-center gap-3">
           {/* Signal Lime Green "Try Sample Draft" Button with Micro-Interactions */}
           <button
+            type="button"
             onClick={handleCreateSampleDraft}
             disabled={isCreatingSample}
-            className="relative px-4 py-2.5 rounded-xl bg-signal text-black font-bold font-display text-xs hover:bg-signal/90 hover:-translate-y-0.5 active:scale-95 transition-all duration-200 shadow-[0_0_20px_rgba(175,230,7,0.3)] hover:shadow-[0_0_25px_rgba(175,230,7,0.45)] flex items-center gap-2 group disabled:opacity-50 cursor-pointer"
+            className="relative px-4 py-2.5 rounded-xl bg-signal text-black font-bold font-display text-xs hover:bg-signal/90 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-150 shadow-[0_0_20px_rgba(175,230,7,0.3)] hover:shadow-[0_0_25px_rgba(175,230,7,0.45)] flex items-center gap-2 group disabled:opacity-50 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
           >
             <Sparkles size={15} className="text-black group-hover:rotate-12 transition-transform duration-300" />
             <span>{isCreatingSample ? "Creating Sample..." : "Try the Lumora Sample Draft"}</span>
@@ -138,8 +140,9 @@ export const Workspace: React.FC = () => {
 
           {/* New Custom Draft Button with Lift and Click State */}
           <button
+            type="button"
             onClick={() => setShowNewModal(true)}
-            className="px-3.5 py-2.5 rounded-xl bg-card hover:bg-white/15 hover:-translate-y-0.5 active:scale-95 border border-line text-xs font-semibold text-white transition-all duration-200 flex items-center gap-1.5 cursor-pointer shadow-sm hover:shadow"
+            className="px-3.5 py-2.5 rounded-xl bg-card hover:bg-white/10 active:bg-white/15 hover:-translate-y-0.5 active:scale-[0.98] border border-line text-xs font-semibold text-white transition-all duration-150 flex items-center gap-1.5 cursor-pointer shadow-sm hover:shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
           >
             <Plus size={15} className="transition-transform duration-200 group-hover:rotate-90" />
             <span>New Custom Draft</span>
@@ -147,8 +150,9 @@ export const Workspace: React.FC = () => {
 
           {/* Refresh Button with Smooth 360-Degree Rotation */}
           <button
+            type="button"
             onClick={fetchSubmissions}
-            className="p-2.5 rounded-xl bg-card hover:bg-white/15 hover:-translate-y-0.5 active:scale-95 border border-line text-muted hover:text-white transition-all duration-200 group cursor-pointer"
+            className="p-2.5 rounded-xl bg-card hover:bg-white/10 active:bg-white/15 hover:-translate-y-0.5 active:scale-[0.98] border border-line text-muted hover:text-white transition-all duration-150 group cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
             title="Refresh submissions"
           >
             <RefreshCw
@@ -172,7 +176,7 @@ export const Workspace: React.FC = () => {
       <div className="mt-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-sm font-semibold uppercase tracking-wider text-muted font-mono">
-            My Campaigns ({submissions.length})
+            My Campaigns ({submissions?.length || 0})
           </h2>
         </div>
 
@@ -180,7 +184,7 @@ export const Workspace: React.FC = () => {
           <div className="py-20 text-center text-muted font-mono text-xs animate-pulse">
             Loading submissions from Supabase...
           </div>
-        ) : submissions.length === 0 ? (
+        ) : !submissions || submissions.length === 0 ? (
           <div className="p-12 text-center rounded-2xl bg-card border border-line">
             <FileText className="w-10 h-10 text-muted mx-auto mb-3 opacity-50" />
             <h3 className="text-sm font-semibold text-white">No drafts yet</h3>
@@ -213,10 +217,10 @@ export const Workspace: React.FC = () => {
                     variants={tableRowVariants}
                     onClick={() => navigate(`/creator/editor/${sub.id}`)}
                     style={{ animationDelay: `${index * 50}ms` }}
-                    className="hover:bg-neutral-800/40 cursor-pointer transition-colors duration-200 group"
+                    className="hover:bg-white/[0.04] cursor-pointer transition-colors duration-150 group"
                   >
                     <td className="px-5 py-3.5">
-                      <div className="font-semibold text-white group-hover:text-primary transition-colors duration-200 text-sm">
+                      <div className="font-semibold text-white group-hover:text-primary transition-colors duration-150 text-sm">
                         {sub.title}
                       </div>
                       <div className="text-[10px] uppercase font-mono text-muted mt-0.5">
@@ -225,15 +229,15 @@ export const Workspace: React.FC = () => {
                     </td>
                     <td className="px-5 py-3.5">
                       <span
-                        className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-mono font-semibold uppercase border transition-all duration-200 ${getStatusBadge(
+                        className={`inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-[10px] font-mono font-semibold uppercase tracking-wider border transition-colors duration-150 ${getStatusBadge(
                           sub.status
                         )}`}
                       >
-                        {sub.status.replace("_", " ")}
+                        {(sub.status || "draft").replace("_", " ")}
                       </span>
                     </td>
                     <td className="px-5 py-3.5">
-                      {sub.open_findings_count > 0 ? (
+                      {(sub.open_findings_count || 0) > 0 ? (
                         <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-high/20 border border-high/40 text-high font-mono font-bold animate-[pulse_2.5s_cubic-bezier(0.4,0,0.6,1)_infinite]">
                           <span className="w-1.5 h-1.5 rounded-full bg-high animate-ping" />
                           <span>{sub.open_findings_count} open</span>
@@ -248,12 +252,12 @@ export const Workspace: React.FC = () => {
                     <td className="px-5 py-3.5 font-mono text-muted">
                       v{sub.latest_version || 1}
                     </td>
-                    <td className="px-5 py-3.5 text-right">
-                      <span className="inline-flex items-center gap-1 text-primary font-semibold text-xs transition-colors">
+                    <td className="px-5 py-3.5 text-right whitespace-nowrap">
+                      <span className="inline-flex items-center gap-1.5 text-primary font-semibold text-xs">
                         <span>Open Editor</span>
                         <ArrowRight
                           size={13}
-                          className="transition-transform duration-200 ease-out group-hover:translate-x-1.5"
+                          className="transition-transform duration-150 ease-out group-hover:translate-x-1 shrink-0"
                         />
                       </span>
                     </td>
@@ -313,13 +317,13 @@ export const Workspace: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setShowNewModal(false)}
-                  className="px-3 py-1.5 rounded-lg bg-card hover:bg-white/10 hover:-translate-y-0.5 active:scale-95 border border-line text-muted hover:text-white transition-all duration-200 cursor-pointer"
+                  className="px-3 py-1.5 rounded-lg bg-card hover:bg-white/10 active:bg-white/15 active:scale-[0.98] border border-line text-muted hover:text-white transition-all duration-150 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-raised"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-lg bg-primary text-black font-semibold text-xs hover:bg-primary/90 hover:-translate-y-0.5 active:scale-95 transition-all duration-200 shadow-[0_0_15px_rgba(175,230,7,0.25)] cursor-pointer"
+                  className="px-4 py-2 rounded-lg bg-primary text-black font-semibold text-xs hover:bg-primary/90 active:scale-[0.98] transition-all duration-150 shadow-[0_0_15px_rgba(175,230,7,0.25)] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-raised"
                 >
                   Create & Audit
                 </button>

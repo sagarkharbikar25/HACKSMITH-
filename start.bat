@@ -81,7 +81,7 @@ if not exist "backend\.env" (
 )
 
 echo [INFO] Checking Python dependencies...
-"%PYTHON_EXE%" -c "import fastapi, uvicorn, sqlalchemy" >nul 2>nul
+"%PYTHON_EXE%" -c "import fastapi, uvicorn, sqlalchemy, pgvector" >nul 2>nul
 if !errorlevel! neq 0 (
     echo [INFO] Installing required backend packages from backend\requirements.txt...
     "%PYTHON_EXE%" -m pip install -r backend\requirements.txt

@@ -106,3 +106,4 @@ export const PaletteStrip: React.FC<PaletteStripProps> = ({
     </div>
   );
 };
+

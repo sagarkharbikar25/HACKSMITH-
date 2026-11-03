@@ -260,3 +260,4 @@ export interface GapSuggestionOut {
 export interface AdoptWordingIn {
   proposed_wording?: RuleWording;
 }
+

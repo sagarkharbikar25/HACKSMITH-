@@ -7,11 +7,14 @@ from sqlalchemy import (
     ForeignKey, JSON, LargeBinary, UniqueConstraint, Index, func
 )
 from sqlalchemy.orm import relationship
-from pgvector.sqlalchemy import Vector
 from .config import settings
 from .db import Base
 
-EmbVector = Vector(settings.EMBEDDING_DIM).with_variant(JSON, "sqlite")
+try:
+    from pgvector.sqlalchemy import Vector
+    EmbVector = Vector(settings.EMBEDDING_DIM).with_variant(JSON, "sqlite")
+except (ImportError, ModuleNotFoundError):
+    EmbVector = JSON
 
 class User(Base):
     __tablename__ = "users"

@@ -10,7 +10,9 @@ import { ReviewQueue } from "./pages/ReviewQueue";
 import { KnowledgeBase } from "./pages/KnowledgeBase";
 import { Insights } from "./pages/Insights";
 import { AuditLog } from "./pages/AuditLog";
+import { LogoLab } from "./pages/LogoLab";
 import { AnimatedBackground } from "./components/AnimatedBackground";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 
 const ProtectedLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, isLoading } = useAuth();
@@ -30,7 +32,11 @@ const ProtectedLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
   return (
     <div className="min-h-screen flex flex-col bg-transparent relative z-10">
       <Navbar />
-      <main className="flex-1">{children}</main>
+      <main className="flex-1">
+        <ErrorBoundary>
+          {children}
+        </ErrorBoundary>
+      </main>
     </div>
   );
 };
@@ -87,6 +93,9 @@ export default function App() {
             <Routes>
               {/* Public Enterprise Auth Portal */}
               <Route path="/login" element={<Login />} />
+
+              {/* Temporary Logo Lab Review Route (unlinked) */}
+              <Route path="/logo-lab" element={<LogoLab />} />
 
               {/* Dynamic Role-Based Home Dispatcher */}
               <Route path="/" element={<HomeDispatcher />} />

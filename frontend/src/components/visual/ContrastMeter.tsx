@@ -114,3 +114,4 @@ export const ContrastMeter: React.FC<ContrastMeterProps> = ({
     </div>
   );
 };
+

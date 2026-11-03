@@ -90,3 +90,4 @@ export const BboxOverlay: React.FC<BboxOverlayProps> = ({
     </g>
   );
 };
+

@@ -86,3 +86,4 @@ export const AssetThumbRail: React.FC<AssetThumbRailProps> = ({
     </div>
   );
 };
+

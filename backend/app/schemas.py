@@ -129,11 +129,25 @@ class FindingOut(BaseModel):
     evidence: EvidenceRef
     suggested_correction: Optional[str] = None
     verification_status: str
-    source_engine: Literal["rules", "llm", "semantic"] = "rules"
+    source_engine: Optional[Literal["rules", "llm", "semantic"]] = "rules"
     resolution: str
     resolution_reason: Optional[str] = None
     similarity: Optional[float] = None
-    match_type: Literal["exact", "semantic"] = "exact"
+    match_type: Optional[Literal["exact", "semantic"]] = "exact"
+
+    @field_validator("match_type", mode="before")
+    @classmethod
+    def default_match_type(cls, v):
+        if not v:
+            return "exact"
+        return v
+
+    @field_validator("source_engine", mode="before")
+    @classmethod
+    def default_source_engine(cls, v):
+        if not v:
+            return "rules"
+        return v
 
 class FindingPatchRequest(BaseModel):
     resolution: Literal["accepted", "edited", "dismissed"]

@@ -66,7 +66,9 @@ def patch_finding(
         evidence=EvidenceRef(id=finding.evidence_id, kind=finding.evidence_kind, label=finding.evidence_id),
         suggested_correction=finding.suggestion,
         verification_status=finding.verification_status,
-        source_engine=finding.source_engine,
+        source_engine=finding.source_engine or "rules",
         resolution=finding.resolution,
-        resolution_reason=finding.resolution_reason
+        resolution_reason=finding.resolution_reason,
+        similarity=getattr(finding, "similarity", None),
+        match_type=getattr(finding, "match_type", None) or "exact",
     )

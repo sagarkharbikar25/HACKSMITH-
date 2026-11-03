@@ -148,11 +148,11 @@ def get_submission(
                     ),
                     suggested_correction=f.suggestion,
                     verification_status=f.verification_status,
-                    source_engine=f.source_engine,
+                    source_engine=f.source_engine or "rules",
                     resolution=f.resolution,
                     resolution_reason=f.resolution_reason,
                     similarity=getattr(f, 'similarity', None),
-                    match_type=getattr(f, 'match_type', 'exact')
+                    match_type=getattr(f, 'match_type', None) or 'exact'
                 )
             )
 

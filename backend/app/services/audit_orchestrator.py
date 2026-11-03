@@ -281,7 +281,7 @@ def run_audit(db: Session, version: Version, actor_id: Optional[int] = None) -> 
                 ),
                 suggested_correction=f.suggestion,
                 verification_status=f.verification_status,
-                source_engine=f.source_engine,
+                source_engine=f.source_engine or "rules",
                 resolution=f.resolution,
                 resolution_reason=f.resolution_reason,
                 similarity=f.similarity,

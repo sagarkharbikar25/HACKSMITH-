@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 
 from .config import settings
 from .db import engine, Base, SessionLocal, ensure_pgvector, get_db
+from . import models
 from .db_migrate import run_migrations
 from .models import Submission
 from .seed import seed_database

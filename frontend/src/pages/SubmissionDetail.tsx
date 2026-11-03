@@ -269,12 +269,21 @@ export const SubmissionDetailView: React.FC = () => {
           <div className="p-6 rounded-2xl bg-critical/10 border border-critical/30 max-w-md mx-auto space-y-3">
             <AlertTriangle className="mx-auto text-critical" size={24} />
             <p className="text-white font-semibold font-sans">{errorMessage}</p>
-            <Link
-              to={backRoute}
-              className="inline-block px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white font-mono text-xs transition-colors"
-            >
-              {backLabel}
-            </Link>
+            <div className="flex items-center justify-center gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => { setErrorMessage(null); fetchDetail(); }}
+                className="px-4 py-2 rounded-xl bg-primary text-black font-semibold font-mono text-xs hover:bg-primary/90 transition-colors cursor-pointer"
+              >
+                Retry Loading
+              </button>
+              <Link
+                to={backRoute}
+                className="inline-block px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white font-mono text-xs transition-colors"
+              >
+                {backLabel}
+              </Link>
+            </div>
           </div>
         ) : (
           <span className="text-muted animate-pulse">Loading submission details...</span>

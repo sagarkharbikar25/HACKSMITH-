@@ -42,3 +42,11 @@ def run_migrations(engine: Engine) -> None:
                 except Exception as exc:
                     logger.warning("Migration failed for %s.%s: %s", table, col, exc)
 
+        # Backfill default values for existing rows
+        if "findings" in table_names:
+            try:
+                conn.execute(text("UPDATE findings SET match_type = 'exact' WHERE match_type IS NULL"))
+                conn.execute(text("UPDATE findings SET source_engine = 'rules' WHERE source_engine IS NULL"))
+            except Exception as exc:
+                logger.warning("Backfill findings defaults failed: %s", exc)
+
